@@ -7,12 +7,12 @@ module.exports = (sequelize, DataTypes) => {
             Product.belongsTo(models.Category, { foreignKey: "FK_iDanhMucID", as: "categoryData" }); //done
             Product.belongsTo(models.Brand, { foreignKey: "FK_iNhanHangID", as: "brandData" }); //done
 
-            Product.hasMany(models.OrderDetail, { foreignKey: "FK_iSanPhamID", as: "orderDetails" }); //done
+            Product.hasMany(models.OrderDetail, { foreignKey: "FK_iSanPhamID", as: "productOrderDetails" }); //done
             Product.hasMany(models.SupplierProduct, { foreignKey: "FK_iSanPhamID", as: "supplierProducts" }); //done
             Product.hasMany(models.ImportReceiptDetail, { foreignKey: "FK_iSanPhamID", as: "importDetails" }); //done
             Product.hasMany(models.ProductReview, { foreignKey: "FK_iSanPhamID", as: "reviews" }); //done
             Product.hasOne(models.Promotion, { foreignKey: "FK_iSanPhamID", as: "promotion" }); //done
-            Product.hasMany(models.CartDetail, { foreignKey: "FK_iSanPhamID", as: "orderDetails" }); //done
+            Product.hasMany(models.CartDetail, { foreignKey: "FK_iSanPhamID", as: "cartDetails" }); //done
         }
     }
 
@@ -32,7 +32,6 @@ module.exports = (sequelize, DataTypes) => {
         {
             sequelize,
             modelName: "Product",
-            freezeTableName: true,
         }
     );
 

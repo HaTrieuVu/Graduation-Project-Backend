@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
             FK_iSanPhamID: DataTypes.INTEGER,
             iSoLuong: DataTypes.INTEGER,
         },
-        { sequelize, modelName: "OrderDetail", freezeTableName: true }
+        { sequelize, modelName: "OrderDetail" }
     );
     return OrderDetail;
 };

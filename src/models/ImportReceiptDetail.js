@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
             iSoLuongNhap: DataTypes.INTEGER,
             fGiaNhap: DataTypes.FLOAT,
         },
-        { sequelize, modelName: "ImportReceiptDetail", freezeTableName: true }
+        { sequelize, modelName: "ImportReceiptDetail" }
     );
     return ImportReceiptDetail;
 };

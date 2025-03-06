@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import viewEngine from "./config/viewEngine";
+import initApiRoutes from "./route/api";
 import initWebRoutes from "./route/web";
 import connectDB from "./config/connectDB";
 // import cors from "cors";
@@ -8,12 +9,11 @@ import connectDB from "./config/connectDB";
 require("dotenv").config();
 
 let app = express();
-// app.use(cors({ credentials: true, origin: true }));
 
-// Add headers before the routes are defined
+// Config cors
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
-    res.setHeader("Access-Control-Allow-Origin", process.env.URL_REACT);
+    res.setHeader("Access-Control-Allow-Origin", process.env.URL_REACT_MAIN);
 
     // Request methods you wish to allow
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
@@ -36,6 +36,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 viewEngine(app);
+initApiRoutes(app);
 initWebRoutes(app);
 
 connectDB();

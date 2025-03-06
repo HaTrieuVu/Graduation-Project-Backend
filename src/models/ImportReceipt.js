@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
             dNgayLap: DataTypes.DATE,
             sGhiChu: DataTypes.STRING,
         },
-        { sequelize, modelName: "ImportReceipt", freezeTableName: true }
+        { sequelize, modelName: "ImportReceipt" }
     );
     return ImportReceipt;
 };
