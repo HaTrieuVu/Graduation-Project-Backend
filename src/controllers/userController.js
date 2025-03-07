@@ -54,7 +54,45 @@ const handleLogin = async (req, res) => {
     }
 };
 
+// hàm lấy ds người dùng (admin)
+const getAllUser = async (req, res) => {
+    try {
+        let users = await userService.getAllUserService();
+        console.log(users);
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm thêm mới người dùng (admin)
+const createNewUser = (req, res) => {
+    try {
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm cập nhật người dùng (admin)
+const updateUser = (req, res) => {};
+
+// hàm xóa người dùng (admin)
+const deleteUser = (req, res) => {};
+
 module.exports = {
     handleRegister,
     handleLogin,
+    getAllUser,
+    createNewUser,
+    updateUser,
+    deleteUser,
 };
