@@ -133,14 +133,14 @@ const handleLoginService = async (data) => {
 };
 
 //-------------------- user service --------------------
-//lấy ds người dùng
+//lấy tất cả ds người dùng
 const getAllUserService = async () => {
     try {
         let users = await db.Customer.findAll({
             attributes: ["PK_iKhachHangID", "sHoTen", "sEmail", "sSoDienThoai", "sDiaChi", "sAvatar"],
             include: { model: db.Role, as: "role", attributes: ["PK_iQuyenHanID", "sTenQuyenHan", "sMoTa"] },
             raw: true,
-            // nest: true,
+            nest: true,
         });
         if (users) {
             return {
@@ -155,6 +155,41 @@ const getAllUserService = async () => {
                 data: [],
             };
         }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
+// lấy user theo phân trang
+const getUserWithPagination = async (page, limit) => {
+    try {
+        let offSet = (page - 1) * limit;
+        const { count, rows } = await db.Customer.findAndCountAll({
+            attributes: ["PK_iKhachHangID", "sHoTen", "sEmail", "sSoDienThoai", "sDiaChi", "sAvatar"],
+            include: { model: db.Role, as: "role", attributes: ["PK_iQuyenHanID", "sTenQuyenHan", "sMoTa"] },
+            offset: offSet,
+            limit: limit,
+            raw: true,
+            nest: true,
+        });
+
+        let totalPage = Math.ceil(count / limit);
+        let data = {
+            totalRows: count, //tổng có tất cả bao nhiêu bản ghi
+            totalPage: totalPage,
+            users: rows,
+        };
+
+        return {
+            errorCode: 0,
+            errorMessage: "Danh sách khách hàng!",
+            data: data,
+        };
     } catch (error) {
         console.log(error);
         return {
@@ -221,6 +256,7 @@ module.exports = {
     registerUserService,
     handleLoginService,
     getAllUserService,
+    getUserWithPagination,
     createNewUserService,
     updateUserService,
     deleteUserService,

@@ -57,8 +57,26 @@ const handleLogin = async (req, res) => {
 // hàm lấy ds người dùng (admin)
 const getAllUser = async (req, res) => {
     try {
-        let users = await userService.getAllUserService();
-        console.log(users);
+        if (req?.query?.page && req?.query?.limit) {
+            let page = req?.query?.page;
+            let limit = req?.query?.limit;
+
+            let data = await userService.getUserWithPagination(+page, +limit);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        } else {
+            let data = await userService.getAllUserService();
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
     } catch (error) {
         console.log(">>> ERR", error);
         return res.status(500).json({
