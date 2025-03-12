@@ -104,7 +104,26 @@ const createNewUser = (req, res) => {
 const updateUser = (req, res) => {};
 
 // hàm xóa người dùng (admin)
-const deleteUser = (req, res) => {};
+const deleteUser = async (req, res) => {
+    try {
+        if (req?.body?.id) {
+            let data = await userService.deleteUserService(req?.body?.id);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
 
 module.exports = {
     handleRegister,

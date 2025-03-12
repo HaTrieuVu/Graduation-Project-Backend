@@ -237,9 +237,24 @@ const updateUserService = async (data) => {
 //xóa người dùng
 const deleteUserService = async (id) => {
     try {
-        await db.Customer.delete({
+        let user = await db.Customer.findOne({
             where: { PK_iKhachHangID: id },
         });
+
+        if (user) {
+            await user.destroy();
+            return {
+                errorCode: 0,
+                errorMessage: "Xóa người dùng thành công!",
+                data: [],
+            };
+        } else {
+            return {
+                errorCode: -1,
+                errorMessage: "Người dùng không tồn tại",
+                data: [],
+            };
+        }
     } catch (error) {
         console.log(error);
         return {
