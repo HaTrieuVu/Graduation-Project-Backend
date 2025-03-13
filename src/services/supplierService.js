@@ -1,3 +1,5 @@
+import db from "../models/index";
+
 const getSupplierWithPagination = async (page, limit) => {
     try {
         let offSet = (page - 1) * limit;

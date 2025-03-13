@@ -69,7 +69,7 @@ const registerUserService = async (data) => {
 
         return {
             errorCode: 0,
-            errorMessage: "Tạo mới người dùng thành công!",
+            errorMessage: "Đăng ký tài khoản thành công!",
         };
     } catch (error) {
         console.log("error from service", error);
@@ -203,7 +203,23 @@ const getUserWithPagination = async (page, limit) => {
 //thêm mới người dùng
 const createNewUserService = async (data) => {
     try {
-        await db.Customer.create({});
+        //hash password
+        let hashPassword = hashPasswordUser(data.password);
+
+        await db.Customer.create({
+            FK_iQuyenHanID: data.role,
+            sHoTen: data.fullName,
+            sEmail: data.email,
+            sSoDienThoai: data.phoneNumber,
+            sDiaChi: data.address,
+            sMatKhau: hashPassword,
+        });
+
+        return {
+            errorCode: 0,
+            errorMessage: "Thêm mới người dùng thành công!",
+            data: [],
+        };
     } catch (error) {
         console.log(error);
         return {

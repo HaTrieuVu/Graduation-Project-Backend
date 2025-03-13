@@ -88,8 +88,30 @@ const getAllUser = async (req, res) => {
 };
 
 // hàm thêm mới người dùng (admin)
-const createNewUser = (req, res) => {
+const createNewUser = async (req, res) => {
     try {
+        if (
+            !req.body.email ||
+            !req.body.phoneNumber ||
+            !req.body.fullName ||
+            !req.body.password ||
+            !req.body.address ||
+            !req.body.role
+        ) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+                data: "",
+            });
+        }
+
+        let data = await userService.createNewUserService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+            data: data.data,
+        });
     } catch (error) {
         console.log(">>> ERR", error);
         return res.status(500).json({
