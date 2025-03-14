@@ -203,6 +203,22 @@ const getUserWithPagination = async (page, limit) => {
 //thêm mới người dùng
 const createNewUserService = async (data) => {
     try {
+        // check email/phoneNumber
+        let isEmailExist = await checkEmailExist(data.email);
+        let isPhoneExist = await checkPhoneUserExist(data.phoneNumber);
+        if (isEmailExist === true) {
+            return {
+                errorCode: 1,
+                errorMessage: "Email đã tồn tại!",
+            };
+        }
+        if (isPhoneExist === true) {
+            return {
+                errorCode: 1,
+                errorMessage: "Số điện thoại đã tồn tại!",
+            };
+        }
+
         //hash password
         let hashPassword = hashPasswordUser(data.password);
 
@@ -237,8 +253,22 @@ const updateUserService = async (data) => {
             where: { PK_iKhachHangID: data.id },
         });
         if (user) {
-            user.save({});
+            await user.update({
+                sHoTen: data.fullName,
+                sDiaChi: data.address,
+                FK_iQuyenHanID: data.role,
+            });
+            return {
+                errorCode: 0,
+                errorMessage: "Cập nhật thông tin người dùng thành công!",
+                data: [],
+            };
         } else {
+            return {
+                errorCode: -1,
+                errorMessage: "Người dùng không tồn tại!",
+                data: [],
+            };
         }
     } catch (error) {
         console.log(error);
