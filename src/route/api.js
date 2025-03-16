@@ -3,6 +3,7 @@ import express from "express";
 import useController from "../controllers/userController";
 import supplierController from "../controllers/supplierController";
 import brandController from "../controllers/brandController";
+import categoryController from "../controllers/categoryController";
 import roleController from "../controllers/roleController";
 
 let router = express.Router();
@@ -46,6 +47,16 @@ let initApiRoutes = (app) => {
     router.put("/manage-brand/update", brandController.updateBrand);
     //api xóa nhãn hàng
     router.delete("/manage-brand/delete", brandController.deleteBrand);
+
+    //----------------------------------- api manage Category ------------------------
+    // api lấy ds danh mục sp
+    router.get("/manage-category/get-all", categoryController.getAllCategory);
+    // api thêm mới danh mục sp
+    router.post("/manage-category/create", categoryController.createNewCategory);
+    // api cập nhật danh mục sp
+    router.put("/manage-category/update", categoryController.updateCategory);
+    //api xóa danh mục sp
+    router.delete("/manage-category/delete", categoryController.deleteCategory);
 
     //----------------------------------- api manage Role ------------------------
     // api lấy ds role
