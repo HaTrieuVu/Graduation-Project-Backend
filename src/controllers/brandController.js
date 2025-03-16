@@ -1,13 +1,13 @@
-import supplierService from "../services/supplierService";
+import brandService from "../services/brandService";
 
-// hàm lấy ds nhà cung cấp (admin)
-const getAllSupplier = async (req, res) => {
+// hàm lấy ds nhãn hàng (admin)
+const getAllBrand = async (req, res) => {
     try {
         if (req?.query?.page && req?.query?.limit) {
             let page = req?.query?.page;
             let limit = req?.query?.limit;
 
-            let data = await supplierService.getSupplierWithPagination(+page, +limit);
+            let data = await brandService.getBrandWithPagination(+page, +limit);
 
             return res.status(200).json({
                 errorCode: data.errorCode,
@@ -25,10 +25,10 @@ const getAllSupplier = async (req, res) => {
     }
 };
 
-// hàm thêm mới nhà cung cấp (admin)
-const createNewSupplier = async (req, res) => {
+// hàm thêm mới nhãn hàng (admin)
+const createNewBrand = async (req, res) => {
     try {
-        if (!req.body.email || !req.body.phoneNumber || !req.body.nameSupplier || !req.body.address) {
+        if (!req.body.brandName || !req.body.logo) {
             return res.status(200).json({
                 errorCode: 1,
                 errorMessage: "Thiếu tham số bắt buộc!",
@@ -36,7 +36,7 @@ const createNewSupplier = async (req, res) => {
             });
         }
 
-        let data = await supplierService.createNewSupplierService(req.body);
+        let data = await brandService.createNewBrandService(req.body);
 
         return res.status(200).json({
             errorCode: data.errorCode,
@@ -53,10 +53,10 @@ const createNewSupplier = async (req, res) => {
     }
 };
 
-// hàm cập nhật nhà cung cấp (admin)
-const updateSupplier = async (req, res) => {
+// hàm cập nhật nhãn hàng (admin)
+const updateBrand = async (req, res) => {
     try {
-        let data = await supplierService.updateSupplierService(req.body);
+        let data = await brandService.updateBrandService(req.body);
 
         return res.status(200).json({
             errorCode: data.errorCode,
@@ -73,11 +73,11 @@ const updateSupplier = async (req, res) => {
     }
 };
 
-// hàm xóa nhà cung cấp (admin)
-const deleteSupplier = async (req, res) => {
+// hàm xóa nhãn hàng (admin)
+const deleteBrand = async (req, res) => {
     try {
         if (req?.body?.id) {
-            let data = await supplierService.deleteSupplierService(req?.body?.id);
+            let data = await brandService.deleteBrandService(req?.body?.id);
 
             return res.status(200).json({
                 errorCode: data.errorCode,
@@ -96,8 +96,8 @@ const deleteSupplier = async (req, res) => {
 };
 
 module.exports = {
-    getAllSupplier,
-    createNewSupplier,
-    updateSupplier,
-    deleteSupplier,
+    getAllBrand,
+    createNewBrand,
+    updateBrand,
+    deleteBrand,
 };

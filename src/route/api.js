@@ -2,6 +2,7 @@ import express from "express";
 
 import useController from "../controllers/userController";
 import supplierController from "../controllers/supplierController";
+import brandController from "../controllers/brandController";
 import roleController from "../controllers/roleController";
 
 let router = express.Router();
@@ -35,6 +36,16 @@ let initApiRoutes = (app) => {
     router.put("/manage-supplier/update", supplierController.updateSupplier);
     //api xóa nhà cung cấp
     router.delete("/manage-supplier/delete", supplierController.deleteSupplier);
+
+    //----------------------------------- api manage Brand ------------------------
+    // api lấy ds nhãn hàng
+    router.get("/manage-brand/get-all", brandController.getAllBrand);
+    // api thêm mới nhãn hàng
+    router.post("/manage-brand/create", brandController.createNewBrand);
+    // api cập nhật nhãn hàng
+    router.put("/manage-brand/update", brandController.updateBrand);
+    //api xóa nhãn hàng
+    router.delete("/manage-brand/delete", brandController.deleteBrand);
 
     //----------------------------------- api manage Role ------------------------
     // api lấy ds role
