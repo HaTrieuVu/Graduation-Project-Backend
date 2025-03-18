@@ -11,7 +11,7 @@ module.exports = {
             FK_iDonMuaHangID: {
                 type: Sequelize.INTEGER,
             },
-            FK_iKhachHangID: {
+            FK_iPhienBanID: {
                 type: Sequelize.INTEGER,
             },
             dNgayGuiYeuCau: Sequelize.DATE,

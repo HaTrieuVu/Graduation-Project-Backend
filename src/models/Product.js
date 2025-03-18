@@ -7,12 +7,7 @@ module.exports = (sequelize, DataTypes) => {
             Product.belongsTo(models.Category, { foreignKey: "FK_iDanhMucID", as: "categoryData" }); //done
             Product.belongsTo(models.Brand, { foreignKey: "FK_iNhanHangID", as: "brandData" }); //done
 
-            Product.hasMany(models.OrderDetail, { foreignKey: "FK_iSanPhamID", as: "productOrderDetails" }); //done
-            Product.hasMany(models.SupplierProduct, { foreignKey: "FK_iSanPhamID", as: "supplierProducts" }); //done
-            Product.hasMany(models.ImportReceiptDetail, { foreignKey: "FK_iSanPhamID", as: "importDetails" }); //done
-            Product.hasMany(models.ProductReview, { foreignKey: "FK_iSanPhamID", as: "reviews" }); //done
-            Product.hasOne(models.Promotion, { foreignKey: "FK_iSanPhamID", as: "promotion" }); //done
-            Product.hasMany(models.CartDetail, { foreignKey: "FK_iSanPhamID", as: "cartDetails" }); //done
+            Product.hasMany(models.ProductVersion, { foreignKey: "FK_iSanPhamID", as: "versions" }); //done
         }
     }
 
@@ -22,9 +17,6 @@ module.exports = (sequelize, DataTypes) => {
             FK_iDanhMucID: DataTypes.INTEGER,
             FK_iNhanHangID: DataTypes.INTEGER,
             sTenSanPham: DataTypes.STRING,
-            sHinhAnh: DataTypes.STRING,
-            iSoLuong: DataTypes.INTEGER,
-            fGiaBan: DataTypes.FLOAT,
             sMoTa: DataTypes.TEXT,
             sDanhGia: DataTypes.STRING,
             sTinhTrangSanPham: DataTypes.STRING,

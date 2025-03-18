@@ -1,22 +1,21 @@
 "use strict";
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("import_receipt_details", {
-            PK_iChiTietPhieuNhapID: {
+        await queryInterface.createTable("product_versions", {
+            PK_iPhienBanID: {
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.INTEGER,
             },
-            FK_iPhieuNhapID: {
+            FK_iSanPhamID: {
                 type: Sequelize.INTEGER,
             },
-            FK_iPhienBanID: {
-                type: Sequelize.INTEGER,
-            },
-            iSoLuongNhap: Sequelize.INTEGER,
-            fGiaNhap: Sequelize.FLOAT,
-            fThanhTien: Sequelize.FLOAT,
+            sMauSac: Sequelize.STRING,
+            sDungLuong: Sequelize.STRING,
+            fGiaBan: Sequelize.FLOAT,
+            iSoLuong: Sequelize.INTEGER,
+            bTrangThai: Sequelize.BOOLEAN,
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE,
@@ -28,6 +27,6 @@ module.exports = {
         });
     },
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable("import_receipt_details");
+        await queryInterface.dropTable("product_versions");
     },
 };

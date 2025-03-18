@@ -11,10 +11,12 @@ module.exports = {
             FK_iDonMuaHangID: {
                 type: Sequelize.INTEGER,
             },
-            FK_iSanPhamID: {
+            FK_iPhienBanID: {
                 type: Sequelize.INTEGER,
             },
             iSoLuong: Sequelize.INTEGER,
+            fGiaBan: Sequelize.FLOAT,
+            fThanhTien: Sequelize.FLOAT,
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE,

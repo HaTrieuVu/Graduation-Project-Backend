@@ -9,7 +9,7 @@ module.exports = {
                 type: Sequelize.INTEGER,
             },
             FK_iGioHangID: Sequelize.INTEGER,
-            FK_iSanPhamID: Sequelize.INTEGER,
+            FK_iPhienBanID: Sequelize.INTEGER,
             iSoLuong: Sequelize.INTEGER,
             createdAt: {
                 allowNull: false,
