@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
 
             Order.hasMany(models.OrderDetail, { foreignKey: "FK_iDonMuaHangID", as: "orderDetails" }); //done
             Order.hasMany(models.Warranty, { foreignKey: "FK_iDonMuaHangID", as: "warranties" }); //done
+            Order.hasMany(models.Notification, { foreignKey: "FK_iDonMuaHangID", as: "notifications" });
         }
     }
     Order.init(

@@ -9,6 +9,7 @@ module.exports = {
                 type: Sequelize.INTEGER,
             },
             FK_iKhachHangID: Sequelize.INTEGER,
+            FK_iDonMuaHangID: Sequelize.INTEGER,
             sNoiDung: Sequelize.STRING,
             dThoiGianGui: Sequelize.DATE,
             sTrangThaiDoc: Sequelize.STRING,
