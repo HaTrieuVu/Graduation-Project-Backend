@@ -3,10 +3,9 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
     class Customer extends Model {
         static associate(models) {
-            Customer.hasMany(models.Order, { foreignKey: "FK_iKhachHangID", as: "orders" }); //done
-            Customer.hasMany(models.ProductReview, { foreignKey: "FK_iKhachHangID", as: "reviews" }); //done
+            Customer.hasMany(models.Order, { foreignKey: "FK_iKhachHangID", as: "orders" }); //done;
             Customer.hasMany(models.Feedback, { foreignKey: "FK_iKhachHangID", as: "feedbacks" }); //done
-            Customer.hasMany(models.Warranty, { foreignKey: "FK_iKhachHangID", as: "warranties" }); //done
+            // Customer.hasMany(models.Warranty, { foreignKey: "FK_iKhachHangID", as: "warranties" }); //done
             Customer.hasMany(models.Notification, { foreignKey: "FK_iKhachHangID", as: "notifications" }); //done
             Customer.hasOne(models.Cart, { foreignKey: "FK_iKhachHangID", as: "carts" }); //done
 

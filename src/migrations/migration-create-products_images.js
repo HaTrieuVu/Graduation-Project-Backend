@@ -8,7 +8,7 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER,
             },
-            FK_iPhienBanID: {
+            FK_iSanPhamID: {
                 type: Sequelize.INTEGER,
             },
             sUrl: Sequelize.BLOB("long"),
