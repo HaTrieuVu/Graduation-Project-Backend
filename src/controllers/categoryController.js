@@ -14,6 +14,14 @@ const getAllCategory = async (req, res) => {
                 errorMessage: data.errorMessage,
                 data: data.data,
             });
+        } else {
+            let data = await categoryService.getAllCategoryService();
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
         }
     } catch (error) {
         console.log(">>> ERR", error);

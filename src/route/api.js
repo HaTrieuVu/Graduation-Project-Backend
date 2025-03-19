@@ -1,6 +1,7 @@
 import express from "express";
 
 import useController from "../controllers/userController";
+import productController from "../controllers/productController";
 import supplierController from "../controllers/supplierController";
 import brandController from "../controllers/brandController";
 import categoryController from "../controllers/categoryController";
@@ -27,6 +28,16 @@ let initApiRoutes = (app) => {
     router.put("/user/update", useController.updateUser);
     //api xóa người dùng
     router.delete("/user/delete", useController.deleteUser);
+
+    //----------------------------------- api manage Product ------------------------
+    // api lấy ds sản phẩm
+    router.get("/manage-product/get-all", productController.getAllProduct);
+    // api thêm mới sản phẩm
+    router.post("/manage-product/create", productController.createNewProduct);
+    // api cập nhật sản phẩm
+    router.put("/manage-product/update", productController.updateProduct);
+    //api xóa sản phẩm
+    router.delete("/manage-product/delete", productController.deleteProduct);
 
     //----------------------------------- api manage Supplier ------------------------
     // api lấy ds nhà cung cấp

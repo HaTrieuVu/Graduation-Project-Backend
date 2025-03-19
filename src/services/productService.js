@@ -1,23 +1,23 @@
 import db from "../models/index";
 
-//lấy tất cả ds danh mục sản phẩm
-const getAllCategoryService = async () => {
+//lấy tất cả ds sản phẩm
+const getAllProductService = async () => {
     try {
-        let categories = await db.Category.findAll({
-            attributes: ["PK_iDanhMucID", "sTenDanhMuc"],
+        let categories = await db.Product.findAll({
+            attributes: ["PK_iSanPhamID", "sTenDanhMuc"],
             raw: true,
             nest: true,
         });
         if (categories) {
             return {
                 errorCode: 0,
-                errorMessage: "Danh sách danh mục sản phẩm!",
+                errorMessage: "Danh sách sản phẩm!",
                 data: categories,
             };
         } else {
             return {
                 errorCode: 0,
-                errorMessage: "Danh sách danh mục sản phẩm trống!",
+                errorMessage: "Danh sách sản phẩm trống!",
                 data: [],
             };
         }
@@ -31,11 +31,23 @@ const getAllCategoryService = async () => {
     }
 };
 
-// lấy danh mục sản phẩm theo phân trang
-const getCategoryWithPagination = async (page, limit) => {
+// lấy sản phẩm theo phân trang
+const getProductWithPagination = async (page, limit) => {
     try {
         let offSet = (page - 1) * limit;
-        const { count, rows } = await db.Category.findAndCountAll({
+        const { count, rows } = await db.Product.findAndCountAll({
+            include: [
+                {
+                    model: db.Category,
+                    as: "categoryData",
+                    attributes: ["sTenDanhMuc"],
+                },
+                {
+                    model: db.Brand,
+                    as: "brandData",
+                    attributes: ["sTenNhanHang"],
+                },
+            ],
             offset: offSet,
             limit: limit,
             raw: true,
@@ -46,12 +58,12 @@ const getCategoryWithPagination = async (page, limit) => {
         let data = {
             totalRows: count, //tổng có tất cả bao nhiêu bản ghi
             totalPage: totalPage,
-            categories: rows,
+            products: rows,
         };
 
         return {
             errorCode: 0,
-            errorMessage: "Danh sách danh mục sản phẩm!",
+            errorMessage: "Danh sách sản phẩm!",
             data: data,
         };
     } catch (error) {
@@ -64,17 +76,21 @@ const getCategoryWithPagination = async (page, limit) => {
     }
 };
 
-//thêm mới danh mục sản phẩm
-const createNewCategoryService = async (data) => {
+//thêm mới sản phẩm
+const createNewProductService = async (data) => {
     try {
-        await db.Category.create({
-            sTenDanhMuc: data.nameCategory,
-            sMoTa: data.description,
+        await db.Product.create({
+            FK_iDanhMucID: data.categoryId,
+            FK_iNhanHangID: data.brandId,
+            sTenSanPham: data.productName,
+            sMoTa: data.description || "",
+            sDanhGia: data.evaluate,
+            sTinhTrangSanPham: data.status,
         });
 
         return {
             errorCode: 0,
-            errorMessage: "Thêm mới danh mục sản phẩm thành công!",
+            errorMessage: "Thêm mới sản phẩm thành công!",
             data: [],
         };
     } catch (error) {
@@ -87,20 +103,24 @@ const createNewCategoryService = async (data) => {
     }
 };
 
-//cập nhật thông tin danh mục sản phẩm
-const updateCategoryService = async (data) => {
+//cập nhật thông tin sản phẩm
+const updateProductService = async (data) => {
     try {
-        let category = await db.Category.findOne({
-            where: { PK_iDanhMucID: data.id },
+        let category = await db.Product.findOne({
+            where: { PK_iSanPhamID: data.id },
         });
         if (category) {
             await category.update({
-                sTenDanhMuc: data.nameCategory,
-                sMoTa: data.description,
+                FK_iDanhMucID: data.categoryId,
+                FK_iNhanHangID: data.brandId,
+                sTenSanPham: data.productName,
+                sMoTa: data.description || "",
+                sDanhGia: data.evaluate,
+                sTinhTrangSanPham: data.status,
             });
             return {
                 errorCode: 0,
-                errorMessage: "Cập nhật thông tin danh mục sản phẩm thành công!",
+                errorMessage: "Cập nhật thông tin sản phẩm thành công!",
                 data: [],
             };
         } else {
@@ -120,18 +140,18 @@ const updateCategoryService = async (data) => {
     }
 };
 
-//xóa danh mục sản phẩm
-const deleteCategoryService = async (id) => {
+//xóa sản phẩm
+const deleteProductService = async (id) => {
     try {
-        let category = await db.Category.findOne({
-            where: { PK_iDanhMucID: id },
+        let category = await db.Product.findOne({
+            where: { PK_iSanPhamID: id },
         });
 
         if (category) {
             await category.destroy();
             return {
                 errorCode: 0,
-                errorMessage: "Xóa danh mục sản phẩm thành công!",
+                errorMessage: "Xóa sản phẩm thành công!",
                 data: [],
             };
         } else {
@@ -152,9 +172,9 @@ const deleteCategoryService = async (id) => {
 };
 
 module.exports = {
-    getAllCategoryService,
-    getCategoryWithPagination,
-    createNewCategoryService,
-    updateCategoryService,
-    deleteCategoryService,
+    getAllProductService,
+    getProductWithPagination,
+    createNewProductService,
+    updateProductService,
+    deleteProductService,
 };

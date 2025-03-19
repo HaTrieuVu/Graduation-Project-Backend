@@ -1,13 +1,13 @@
-import brandService from "../services/brandService";
+import productService from "../services/productService";
 
-// hàm lấy ds nhãn hàng (admin)
-const getAllBrand = async (req, res) => {
+// hàm lấy ds sản phẩm (admin)
+const getAllProduct = async (req, res) => {
     try {
         if (req?.query?.page && req?.query?.limit) {
             let page = req?.query?.page;
             let limit = req?.query?.limit;
 
-            let data = await brandService.getBrandWithPagination(+page, +limit);
+            let data = await productService.getProductWithPagination(+page, +limit);
 
             return res.status(200).json({
                 errorCode: data.errorCode,
@@ -15,7 +15,7 @@ const getAllBrand = async (req, res) => {
                 data: data.data,
             });
         } else {
-            let data = await brandService.getAllBrandService();
+            let data = await productService.getAllProductService();
 
             return res.status(200).json({
                 errorCode: data.errorCode,
@@ -33,10 +33,16 @@ const getAllBrand = async (req, res) => {
     }
 };
 
-// hàm thêm mới nhãn hàng (admin)
-const createNewBrand = async (req, res) => {
+// hàm thêm mới sản phẩm (admin)
+const createNewProduct = async (req, res) => {
     try {
-        if (!req.body.brandName || !req.body.logo) {
+        if (
+            !req.body.categoryId ||
+            !req.body.brandId ||
+            !req.body.productName ||
+            !req.body.evaluate ||
+            !req.body.status
+        ) {
             return res.status(200).json({
                 errorCode: 1,
                 errorMessage: "Thiếu tham số bắt buộc!",
@@ -44,7 +50,7 @@ const createNewBrand = async (req, res) => {
             });
         }
 
-        let data = await brandService.createNewBrandService(req.body);
+        let data = await productService.createNewProductService(req.body);
 
         return res.status(200).json({
             errorCode: data.errorCode,
@@ -61,10 +67,24 @@ const createNewBrand = async (req, res) => {
     }
 };
 
-// hàm cập nhật nhãn hàng (admin)
-const updateBrand = async (req, res) => {
+// hàm cập nhật sản phẩm (admin)
+const updateProduct = async (req, res) => {
     try {
-        let data = await brandService.updateBrandService(req.body);
+        if (
+            !req.body.categoryId ||
+            !req.body.brandId ||
+            !req.body.productName ||
+            !req.body.evaluate ||
+            !req.body.status
+        ) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+                data: "",
+            });
+        }
+
+        let data = await productService.updateProductService(req.body);
 
         return res.status(200).json({
             errorCode: data.errorCode,
@@ -81,11 +101,11 @@ const updateBrand = async (req, res) => {
     }
 };
 
-// hàm xóa nhãn hàng (admin)
-const deleteBrand = async (req, res) => {
+// hàm xóa sản phẩm (admin)
+const deleteProduct = async (req, res) => {
     try {
         if (req?.body?.id) {
-            let data = await brandService.deleteBrandService(req?.body?.id);
+            let data = await productService.deleteProductService(req?.body?.id);
 
             return res.status(200).json({
                 errorCode: data.errorCode,
@@ -104,8 +124,8 @@ const deleteBrand = async (req, res) => {
 };
 
 module.exports = {
-    getAllBrand,
-    createNewBrand,
-    updateBrand,
-    deleteBrand,
+    getAllProduct,
+    createNewProduct,
+    updateProduct,
+    deleteProduct,
 };

@@ -1,6 +1,37 @@
 import db from "../models/index";
 
-// lấy nhãn hàng theo phân trang
+//lấy tất cả ds nhãn hàng
+const getAllBrandService = async () => {
+    try {
+        let brands = await db.Brand.findAll({
+            attributes: ["PK_iNhanHangID", "sTenNhanHang"],
+            raw: true,
+            nest: true,
+        });
+        if (brands) {
+            return {
+                errorCode: 0,
+                errorMessage: "Danh sách nhãn hàng!",
+                data: brands,
+            };
+        } else {
+            return {
+                errorCode: 0,
+                errorMessage: "Danh sách nhãn hàng trống!",
+                data: [],
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
+// lấy ds nhãn hàng theo phân trang
 const getBrandWithPagination = async (page, limit) => {
     try {
         let offSet = (page - 1) * limit;
@@ -137,6 +168,7 @@ const deleteBrandService = async (id) => {
 };
 
 module.exports = {
+    getAllBrandService,
     getBrandWithPagination,
     createNewBrandService,
     updateBrandService,
