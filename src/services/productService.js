@@ -1,4 +1,5 @@
 import db from "../models/index";
+const { Op } = require("sequelize");
 
 //---------------------- Service Product
 
@@ -510,6 +511,58 @@ const deleteProductImageService = async (id) => {
     }
 };
 
+//--------------------------------
+//hàm search product
+const searchProductService = async (page, limit, keywordSearch) => {
+    try {
+        let offSet = (page - 1) * limit;
+
+        const { count, rows } = await db.Product.findAndCountAll({
+            include: [
+                {
+                    model: db.Category,
+                    as: "categoryData",
+                    attributes: ["sTenDanhMuc"],
+                },
+                {
+                    model: db.Brand,
+                    as: "brandData",
+                    attributes: ["sTenNhanHang"],
+                },
+            ],
+            where: {
+                sTenSanPham: {
+                    [Op.like]: `%${keywordSearch}%`, // Tìm kiếm chuỗi chứa từ khóa
+                },
+            },
+            offset: offSet,
+            limit: limit,
+            raw: true,
+            nest: true,
+        });
+
+        let totalPage = Math.ceil(count / limit);
+        let data = {
+            totalRows: count, // Tổng số bản ghi
+            totalPage: totalPage, // Tổng số trang
+            products: rows, // Danh sách sản phẩm
+        };
+
+        return {
+            errorCode: 0,
+            errorMessage: "Danh sách tìm kiếm sản phẩm!",
+            data: data,
+        };
+    } catch (error) {
+        console.error("Lỗi trong searchProductService:", error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
 module.exports = {
     getAllProductService,
     getProductWithPagination,
@@ -528,4 +581,6 @@ module.exports = {
     createNewProductImageService,
     updateProductImageService,
     deleteProductImageService,
+
+    searchProductService,
 };

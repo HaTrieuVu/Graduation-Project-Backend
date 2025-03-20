@@ -38,6 +38,8 @@ let initApiRoutes = (app) => {
     router.put("/manage-product/update", productController.updateProduct);
     //api xóa sản phẩm
     router.delete("/manage-product/delete", productController.deleteProduct);
+    // api tìm kiếm sản phẩm
+    router.get("/search-product", productController.searchProduct);
 
     //----------------------------------- api manage Product Version ------------------------
     // api lấy ds sản phẩm

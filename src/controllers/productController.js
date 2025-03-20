@@ -367,6 +367,33 @@ const deleteProductImage = async (req, res) => {
     }
 };
 
+//------------------------------------
+// hàm lấy tìm kiếm sản phẩm  (admin)
+const searchProduct = async (req, res) => {
+    try {
+        if (req?.query?.page && req?.query?.limit && req?.query?.keywordSearch) {
+            let page = req?.query?.page;
+            let limit = req?.query?.limit;
+            let keywordSearch = req?.query?.keywordSearch;
+
+            let data = await productService.searchProductService(+page, +limit, keywordSearch);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 module.exports = {
     getAllProduct,
     createNewProduct,
@@ -382,4 +409,6 @@ module.exports = {
     createNewProductImage,
     updateProductImage,
     deleteProductImage,
+
+    searchProduct,
 };
