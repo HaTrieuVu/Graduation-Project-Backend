@@ -254,6 +254,119 @@ const deleteProductVersion = async (req, res) => {
     }
 };
 
+//------------------------------- Product Image
+
+// hàm lấy ds sản phẩm - hình ảnh (admin)
+const getAllProductImage = async (req, res) => {
+    try {
+        if (req?.query?.page && req?.query?.limit) {
+            let page = req?.query?.page;
+            let limit = req?.query?.limit;
+
+            let data = await productService.getProductImageWithPagination(+page, +limit);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        } else {
+            let data = await productService.getAllProductImageService();
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm thêm mới sản phẩm - hình ảnh (admin)
+const createNewProductImage = async (req, res) => {
+    try {
+        if (!req.body.productId || !req.body.imgSource) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+                data: "",
+            });
+        }
+
+        let data = await productService.createNewProductImageService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+            data: data.data,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm cập nhật sản phẩm - hình ảnh (admin)
+const updateProductImage = async (req, res) => {
+    try {
+        if (!req.body.id || !req.body.productId || !req.body.imgSource) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+                data: "",
+            });
+        }
+
+        let data = await productService.updateProductImageService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+            data: data.data,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm xóa sản phẩm - hình ảnh (admin)
+const deleteProductImage = async (req, res) => {
+    try {
+        if (req?.body?.id) {
+            let data = await productService.deleteProductImageService(req?.body?.id);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 module.exports = {
     getAllProduct,
     createNewProduct,
@@ -264,4 +377,9 @@ module.exports = {
     createNewProductVersion,
     updateProductVersion,
     deleteProductVersion,
+
+    getAllProductImage,
+    createNewProductImage,
+    updateProductImage,
+    deleteProductImage,
 };

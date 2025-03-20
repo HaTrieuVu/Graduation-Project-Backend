@@ -173,6 +173,7 @@ const deleteProductService = async (id) => {
 };
 
 //---------------------- Service Product Version
+
 //lấy tất cả ds sản phẩm - phiên bản
 const getAllProductVersionService = async () => {
     try {
@@ -338,6 +339,177 @@ const deleteProductVersionService = async (id) => {
     }
 };
 
+//---------------------- Service Product Image
+
+//lấy tất cả ds sản phẩm - hình ảnh
+const getAllProductImageService = async () => {
+    try {
+        let productVersion = await db.ProductImage.findAll({
+            raw: true,
+            nest: true,
+        });
+        if (productVersion) {
+            return {
+                errorCode: 0,
+                errorMessage: "Danh sách sản phẩm - hình ảnh!",
+                data: productVersion,
+            };
+        } else {
+            return {
+                errorCode: 0,
+                errorMessage: "Danh sách sản phẩm - hình ảnh trống!",
+                data: [],
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
+// lấy sản phẩm - hình ảnh theo phân trang
+const getProductImageWithPagination = async (page, limit) => {
+    try {
+        let offSet = (page - 1) * limit;
+        const { count, rows } = await db.ProductImage.findAndCountAll({
+            include: [
+                {
+                    model: db.Product,
+                    as: "product",
+                    attributes: ["sTenSanPham"],
+                },
+            ],
+            offset: offSet,
+            limit: limit,
+            raw: true,
+            nest: true,
+        });
+
+        let totalPage = Math.ceil(count / limit);
+
+        // Convert ảnh sUrl sang dạng base64 để hiển thị ảnh trên client
+        if (rows && rows.length > 0) {
+            rows.forEach((item) => {
+                if (item.sUrl) {
+                    item.sUrl = new Buffer(item.sUrl, "base64").toString("binary");
+                }
+            });
+        }
+
+        let data = {
+            totalRows: count, //tổng có tất cả bao nhiêu bản ghi
+            totalPage: totalPage,
+            productImages: rows,
+        };
+
+        return {
+            errorCode: 0,
+            errorMessage: "Danh sách sản phẩm - hình ảnh!",
+            data: data,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
+//thêm mới sản phẩm - hình ảnh
+const createNewProductImageService = async (data) => {
+    try {
+        await db.ProductImage.create({
+            FK_iSanPhamID: data.productId,
+            sUrl: data.imgSource,
+            sMoTa: data.description || "",
+        });
+
+        return {
+            errorCode: 0,
+            errorMessage: "Thêm mới sản phẩm - hình ảnh thành công!",
+            data: [],
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
+//cập nhật thông tin sản phẩm - hình ảnh
+const updateProductImageService = async (data) => {
+    try {
+        let productImage = await db.ProductImage.findOne({
+            where: { PK_iHinhAnhID: data.id },
+        });
+        if (productImage) {
+            await productImage.update({
+                FK_iSanPhamID: data.productId,
+                sUrl: data.imgSource,
+                sMoTa: data.description,
+            });
+            return {
+                errorCode: 0,
+                errorMessage: "Cập nhật thông tin sản phẩm - hình ảnh thành công!",
+                data: [],
+            };
+        } else {
+            return {
+                errorCode: -1,
+                errorMessage: "Sản phẩm - hình ảnh không tồn tại!",
+                data: [],
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
+//xóa sản phẩm - hình ảnh
+const deleteProductImageService = async (id) => {
+    try {
+        let productImage = await db.ProductImage.findOne({
+            where: { PK_iHinhAnhID: id },
+        });
+
+        if (productImage) {
+            await productImage.destroy();
+            return {
+                errorCode: 0,
+                errorMessage: "Xóa sản phẩm - hình ảnh thành công!",
+                data: [],
+            };
+        } else {
+            return {
+                errorCode: -1,
+                errorMessage: "Sản phẩm - hình ảnh không tồn tại",
+                data: [],
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
 module.exports = {
     getAllProductService,
     getProductWithPagination,
@@ -350,4 +522,10 @@ module.exports = {
     createNewProductVersionService,
     updateProductVersionService,
     deleteProductVersionService,
+
+    getAllProductImageService,
+    getProductImageWithPagination,
+    createNewProductImageService,
+    updateProductImageService,
+    deleteProductImageService,
 };

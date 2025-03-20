@@ -48,7 +48,7 @@ const getBrandWithPagination = async (page, limit) => {
 
         let totalPage = Math.ceil(count / limit);
 
-        // Convert ảnh sLogo sang dạng base64 với tiền tố đúng
+        // Convert ảnh sLogo sang dạng base64 để hiển thị ảnh trên client
         if (rows && rows.length > 0) {
             rows.forEach((item) => {
                 if (item.sLogo) {
