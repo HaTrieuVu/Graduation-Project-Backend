@@ -4,7 +4,7 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
     class ProductVersion extends Model {
         static associate(models) {
-            ProductVersion.belongsTo(models.Product, { foreignKey: "FK_iSanPhamID", as: "product" });
+            ProductVersion.belongsTo(models.Product, { foreignKey: "FK_iSanPhamID", as: "productData" });
             ProductVersion.hasMany(models.OrderDetail, { foreignKey: "FK_iPhienBanID", as: "orderDetails" });
             ProductVersion.hasMany(models.ImportReceiptDetail, { foreignKey: "FK_iPhienBanID", as: "importDetails" });
             ProductVersion.hasMany(models.CartDetail, { foreignKey: "FK_iPhienBanID", as: "cartDetails" });
@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
             iSoLuong: DataTypes.INTEGER,
             bTrangThai: DataTypes.BOOLEAN,
         },
-        { sequelize, modelName: "ProductVersion" }
+        { sequelize, modelName: "ProductVersion", tableName: "product_versions" }
     );
     return ProductVersion;
 };

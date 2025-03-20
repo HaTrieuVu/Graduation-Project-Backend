@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
             fGiaNhap: DataTypes.FLOAT,
             fThanhTien: DataTypes.FLOAT,
         },
-        { sequelize, modelName: "ImportReceiptDetail" }
+        { sequelize, modelName: "ImportReceiptDetail", tableName: "import_receipt_details" }
     );
     return ImportReceiptDetail;
 };

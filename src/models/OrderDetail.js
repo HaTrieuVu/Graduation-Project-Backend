@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
             fGiaBan: DataTypes.FLOAT,
             fThanhTien: DataTypes.FLOAT,
         },
-        { sequelize, modelName: "OrderDetail" }
+        { sequelize, modelName: "OrderDetail", tableName: "order_details" }
     );
     return OrderDetail;
 };

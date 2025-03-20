@@ -1,5 +1,7 @@
 import productService from "../services/productService";
 
+//------------------------------ Product
+
 // hàm lấy ds sản phẩm (admin)
 const getAllProduct = async (req, res) => {
     try {
@@ -71,6 +73,7 @@ const createNewProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
     try {
         if (
+            !req.body.id ||
             !req.body.categoryId ||
             !req.body.brandId ||
             !req.body.productName ||
@@ -123,9 +126,142 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+//------------------------------- Product version
+
+// hàm lấy ds sản phẩm - phiên bản (admin)
+const getAllProductVersion = async (req, res) => {
+    try {
+        if (req?.query?.page && req?.query?.limit) {
+            let page = req?.query?.page;
+            let limit = req?.query?.limit;
+
+            let data = await productService.getProductVersionWithPagination(+page, +limit);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        } else {
+            let data = await productService.getAllProductVersionService();
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm thêm mới sản phẩm - phiên bản (admin)
+const createNewProductVersion = async (req, res) => {
+    try {
+        if (
+            !req.body.productId ||
+            !req.body.color ||
+            !req.body.capacity ||
+            !req.body.price ||
+            !req.body.quantity ||
+            !req.body.status
+        ) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+                data: "",
+            });
+        }
+
+        let data = await productService.createNewProductVersionService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+            data: data.data,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm cập nhật sản phẩm - phiên bản (admin)
+const updateProductVersion = async (req, res) => {
+    try {
+        if (
+            !req.body.id ||
+            !req.body.productId ||
+            !req.body.color ||
+            !req.body.capacity ||
+            !req.body.price ||
+            !req.body.quantity ||
+            !req.body.status
+        ) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+                data: "",
+            });
+        }
+
+        let data = await productService.updateProductVersionService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+            data: data.data,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm xóa sản phẩm - phiên bản (admin)
+const deleteProductVersion = async (req, res) => {
+    try {
+        if (req?.body?.id) {
+            let data = await productService.deleteProductVersionService(req?.body?.id);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 module.exports = {
     getAllProduct,
     createNewProduct,
     updateProduct,
     deleteProduct,
+
+    getAllProductVersion,
+    createNewProductVersion,
+    updateProductVersion,
+    deleteProductVersion,
 };

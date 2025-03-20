@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
             sUrl: DataTypes.STRING,
             sMoTa: DataTypes.STRING,
         },
-        { sequelize, modelName: "ProductImage" }
+        { sequelize, modelName: "ProductImage", tableName: "product_images" }
     );
     return ProductImage;
 };

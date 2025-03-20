@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
             FK_iNhaCungCapID: { type: DataTypes.INTEGER, allowNull: false },
             FK_iSanPhamID: { type: DataTypes.INTEGER, allowNull: false },
         },
-        { sequelize, modelName: "SupplierProduct" }
+        { sequelize, modelName: "SupplierProduct", tableName: "supplier_products" }
     );
     return SupplierProduct;
 };
