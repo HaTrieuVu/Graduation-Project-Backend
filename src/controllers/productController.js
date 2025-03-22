@@ -367,7 +367,54 @@ const deleteProductImage = async (req, res) => {
     }
 };
 
-//------------------------------------
+//------------------------------------ Client
+// hàm lấy ds sản phẩm để hiện thị phía client
+const fetchAllProduct = async (req, res) => {
+    try {
+        if (req?.query?.page && req?.query?.limit) {
+            let page = req?.query?.page;
+            let limit = req?.query?.limit;
+
+            let data = await productService.fetchAllProductWithPagination(+page, +limit);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm lấy thông tin chi tiết của 1 sản phẩm
+const getInfoProductSingle = async (req, res) => {
+    try {
+        if (req?.query?.id) {
+            let data = await productService.getInfoProductSingleService(+req?.query?.id);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 // hàm lấy tìm kiếm sản phẩm  (admin)
 const searchProduct = async (req, res) => {
     try {
@@ -410,5 +457,7 @@ module.exports = {
     updateProductImage,
     deleteProductImage,
 
+    fetchAllProduct,
+    getInfoProductSingle,
     searchProduct,
 };

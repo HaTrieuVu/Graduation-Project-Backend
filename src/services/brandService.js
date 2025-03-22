@@ -4,10 +4,20 @@ import db from "../models/index";
 const getAllBrandService = async () => {
     try {
         let brands = await db.Brand.findAll({
-            attributes: ["PK_iNhanHangID", "sTenNhanHang"],
+            attributes: ["PK_iNhanHangID", "sTenNhanHang", "sLogo"],
             raw: true,
             nest: true,
         });
+
+        // Convert ảnh sLogo sang dạng base64 để hiển thị ảnh trên client
+        if (brands && brands.length > 0) {
+            brands.forEach((item) => {
+                if (item.sLogo) {
+                    item.sLogo = new Buffer(item.sLogo, "base64").toString("binary");
+                }
+            });
+        }
+
         if (brands) {
             return {
                 errorCode: 0,

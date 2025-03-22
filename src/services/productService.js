@@ -33,16 +33,22 @@ const getAllProductService = async () => {
     }
 };
 
-// lấy sản phẩm theo phân trang
+// lấy sản phẩm theo phân trang (admin)
 const getProductWithPagination = async (page, limit) => {
     try {
         let offSet = (page - 1) * limit;
         const { count, rows } = await db.Product.findAndCountAll({
+            attributes: { exclude: ["createdAt", "updatedAt", "sMoTa"] },
             include: [
                 {
                     model: db.Category,
                     as: "categoryData",
                     attributes: ["sTenDanhMuc"],
+                },
+                {
+                    model: db.Brand,
+                    as: "brandData",
+                    attributes: ["sTenNhanHang"],
                 },
                 {
                     model: db.Brand,
@@ -78,7 +84,7 @@ const getProductWithPagination = async (page, limit) => {
     }
 };
 
-//thêm mới sản phẩm
+//thêm mới sản phẩm (admin)
 const createNewProductService = async (data) => {
     try {
         await db.Product.create({
@@ -105,7 +111,7 @@ const createNewProductService = async (data) => {
     }
 };
 
-//cập nhật thông tin sản phẩm
+//cập nhật thông tin sản phẩm (admin)
 const updateProductService = async (data) => {
     try {
         let product = await db.Product.findOne({
@@ -142,7 +148,7 @@ const updateProductService = async (data) => {
     }
 };
 
-//xóa sản phẩm
+//xóa sản phẩm (admin)
 const deleteProductService = async (id) => {
     try {
         let product = await db.Product.findOne({
@@ -175,7 +181,7 @@ const deleteProductService = async (id) => {
 
 //---------------------- Service Product Version
 
-//lấy tất cả ds sản phẩm - phiên bản
+//lấy tất cả ds sản phẩm - phiên bản (admin)
 const getAllProductVersionService = async () => {
     try {
         let productVersion = await db.ProductVersion.findAll({
@@ -205,7 +211,7 @@ const getAllProductVersionService = async () => {
     }
 };
 
-// lấy sản phẩm - phiên bản theo phân trang
+// lấy sản phẩm - phiên bản theo phân trang (admin)
 const getProductVersionWithPagination = async (page, limit) => {
     try {
         let offSet = (page - 1) * limit;
@@ -245,7 +251,7 @@ const getProductVersionWithPagination = async (page, limit) => {
     }
 };
 
-//thêm mới sản phẩm - phiên bản
+//thêm mới sản phẩm - phiên bản (admin)
 const createNewProductVersionService = async (data) => {
     try {
         await db.ProductVersion.create({
@@ -272,7 +278,7 @@ const createNewProductVersionService = async (data) => {
     }
 };
 
-//cập nhật thông tin sản phẩm - phiên bản
+//cập nhật thông tin sản phẩm - phiên bản (admin)
 const updateProductVersionService = async (data) => {
     try {
         let productVersion = await db.ProductVersion.findOne({
@@ -309,7 +315,7 @@ const updateProductVersionService = async (data) => {
     }
 };
 
-//xóa sản phẩm - phiên bản
+//xóa sản phẩm - phiên bản (admin)
 const deleteProductVersionService = async (id) => {
     try {
         let productVersion = await db.ProductVersion.findOne({
@@ -342,7 +348,7 @@ const deleteProductVersionService = async (id) => {
 
 //---------------------- Service Product Image
 
-//lấy tất cả ds sản phẩm - hình ảnh
+//lấy tất cả ds sản phẩm - hình ảnh (admin)
 const getAllProductImageService = async () => {
     try {
         let productVersion = await db.ProductImage.findAll({
@@ -372,7 +378,7 @@ const getAllProductImageService = async () => {
     }
 };
 
-// lấy sản phẩm - hình ảnh theo phân trang
+// lấy sản phẩm - hình ảnh theo phân trang (admin)
 const getProductImageWithPagination = async (page, limit) => {
     try {
         let offSet = (page - 1) * limit;
@@ -422,7 +428,7 @@ const getProductImageWithPagination = async (page, limit) => {
     }
 };
 
-//thêm mới sản phẩm - hình ảnh
+//thêm mới sản phẩm - hình ảnh (admin)
 const createNewProductImageService = async (data) => {
     try {
         await db.ProductImage.create({
@@ -446,7 +452,7 @@ const createNewProductImageService = async (data) => {
     }
 };
 
-//cập nhật thông tin sản phẩm - hình ảnh
+//cập nhật thông tin sản phẩm - hình ảnh (admin)
 const updateProductImageService = async (data) => {
     try {
         let productImage = await db.ProductImage.findOne({
@@ -480,7 +486,7 @@ const updateProductImageService = async (data) => {
     }
 };
 
-//xóa sản phẩm - hình ảnh
+//xóa sản phẩm - hình ảnh (admin)
 const deleteProductImageService = async (id) => {
     try {
         let productImage = await db.ProductImage.findOne({
@@ -511,7 +517,133 @@ const deleteProductImageService = async (id) => {
     }
 };
 
-//--------------------------------
+//-------------------------------- Client
+
+// lấy ds sản phẩm theo phân trang để hiện thị phía client
+const fetchAllProductWithPagination = async (page, limit) => {
+    try {
+        let offSet = (page - 1) * limit;
+        const { count, rows } = await db.Product.findAndCountAll({
+            attributes: { exclude: ["createdAt", "updatedAt", "sMoTa"] },
+            include: [
+                {
+                    model: db.Category,
+                    as: "categoryData",
+                    attributes: ["sTenDanhMuc"],
+                },
+                {
+                    model: db.Brand,
+                    as: "brandData",
+                    attributes: ["sTenNhanHang"],
+                },
+                {
+                    model: db.ProductVersion,
+                    as: "versions",
+                    attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
+                },
+                {
+                    model: db.ProductImage,
+                    as: "images",
+                    attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
+                },
+                {
+                    model: db.Promotion,
+                    as: "promotion",
+                    attributes: ["fGiaTriKhuyenMai"],
+                },
+            ],
+            offset: offSet,
+            limit: limit,
+        });
+
+        let totalPage = Math.ceil(count / limit);
+        let data = {
+            totalRows: count, //tổng có tất cả bao nhiêu bản ghi
+            totalPage: totalPage,
+            products: rows,
+        };
+
+        return {
+            errorCode: 0,
+            errorMessage: "Danh sách sản phẩm!",
+            data: data,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
+const getInfoProductSingleService = async (id) => {
+    try {
+        let product = await db.Product.findOne({
+            where: { PK_iSanPhamID: id },
+            attributes: { exclude: ["createdAt", "updatedAt", "sMoTa"] },
+            include: [
+                {
+                    model: db.Category,
+                    as: "categoryData",
+                    attributes: ["sTenDanhMuc"],
+                },
+                {
+                    model: db.Brand,
+                    as: "brandData",
+                    attributes: ["sTenNhanHang"],
+                },
+                {
+                    model: db.ProductVersion,
+                    as: "versions",
+                    attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
+                },
+                {
+                    model: db.ProductImage,
+                    as: "images",
+                    attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
+                },
+                {
+                    model: db.Promotion,
+                    as: "promotion",
+                    attributes: ["fGiaTriKhuyenMai"],
+                },
+            ],
+        });
+
+        // Convert ảnh sUrl sang dạng base64 để hiển thị ảnh trên client
+        if (product && product?.images?.length > 0) {
+            product?.images.forEach((item) => {
+                if (item.sUrl) {
+                    item.sUrl = new Buffer(item.sUrl, "base64").toString("binary");
+                }
+            });
+        }
+
+        if (product) {
+            return {
+                errorCode: 0,
+                errorMessage: "Thông tin chi tiết sản phẩm!",
+                data: product,
+            };
+        } else {
+            return {
+                errorCode: -1,
+                errorMessage: "Sản phẩm không tồn tại!",
+                data: [],
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
 //hàm search product
 const searchProductService = async (page, limit, keywordSearch) => {
     try {
@@ -582,5 +714,7 @@ module.exports = {
     updateProductImageService,
     deleteProductImageService,
 
+    fetchAllProductWithPagination,
+    getInfoProductSingleService,
     searchProductService,
 };
