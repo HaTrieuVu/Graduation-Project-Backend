@@ -115,11 +115,11 @@ const createNewBrandService = async (data) => {
 //cập nhật thông tin nhãn hàng
 const updateBrandService = async (data) => {
     try {
-        let supplier = await db.Brand.findOne({
+        let brand = await db.Brand.findOne({
             where: { PK_iNhanHangID: data.id },
         });
-        if (supplier) {
-            await supplier.update({
+        if (brand) {
+            await brand.update({
                 sTenNhanHang: data.brandName,
                 sLogo: data.logo,
                 sMoTa: data.description || "",
@@ -149,12 +149,12 @@ const updateBrandService = async (data) => {
 //xóa nhãn hàng
 const deleteBrandService = async (id) => {
     try {
-        let supplier = await db.Brand.findOne({
+        let brand = await db.Brand.findOne({
             where: { PK_iNhanHangID: id },
         });
 
-        if (supplier) {
-            await supplier.destroy();
+        if (brand) {
+            await brand.destroy();
             return {
                 errorCode: 0,
                 errorMessage: "Xóa nhãn hàng thành công!",
@@ -177,10 +177,76 @@ const deleteBrandService = async (id) => {
     }
 };
 
+//-------------
+// hàm lấy ds sản phẩm theo nhãn hàng
+const getAllProductByBrandService = async (id) => {
+    try {
+        let brands = await db.Brand.findOne({
+            where: { PK_iNhanHangID: id },
+            attributes: ["PK_iNhanHangID", "sTenNhanHang", "sLogo"],
+            include: {
+                model: db.Product,
+                as: "products",
+                attributes: { exclude: ["createdAt", "updatedAt", "sMoTa"] },
+                include: [
+                    {
+                        model: db.Category,
+                        as: "categoryData",
+                        attributes: ["sTenDanhMuc"],
+                    },
+                    {
+                        model: db.Brand,
+                        as: "brandData",
+                        attributes: ["sTenNhanHang"],
+                    },
+                    {
+                        model: db.ProductVersion,
+                        as: "versions",
+                        attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
+                    },
+                    {
+                        model: db.ProductImage,
+                        as: "images",
+                        attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
+                    },
+                    {
+                        model: db.Promotion,
+                        as: "promotion",
+                        attributes: ["fGiaTriKhuyenMai"],
+                    },
+                ],
+            },
+        });
+
+        if (brands) {
+            return {
+                errorCode: 0,
+                errorMessage: "Danh sách sản phẩm của nhãn hàng!",
+                data: brands,
+            };
+        } else {
+            return {
+                errorCode: 0,
+                errorMessage: "Danh sách sản phẩm của nhãn hàng trống!",
+                data: {},
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
 module.exports = {
     getAllBrandService,
     getBrandWithPagination,
     createNewBrandService,
     updateBrandService,
     deleteBrandService,
+
+    getAllProductByBrandService,
 };

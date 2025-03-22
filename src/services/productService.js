@@ -179,6 +179,57 @@ const deleteProductService = async (id) => {
     }
 };
 
+//hàm search product (admin)
+const searchProductService = async (page, limit, keywordSearch) => {
+    try {
+        let offSet = (page - 1) * limit;
+
+        const { count, rows } = await db.Product.findAndCountAll({
+            include: [
+                {
+                    model: db.Category,
+                    as: "categoryData",
+                    attributes: ["sTenDanhMuc"],
+                },
+                {
+                    model: db.Brand,
+                    as: "brandData",
+                    attributes: ["sTenNhanHang"],
+                },
+            ],
+            where: {
+                sTenSanPham: {
+                    [Op.like]: `%${keywordSearch}%`, // Tìm kiếm chuỗi chứa từ khóa
+                },
+            },
+            offset: offSet,
+            limit: limit,
+            raw: true,
+            nest: true,
+        });
+
+        let totalPage = Math.ceil(count / limit);
+        let data = {
+            totalRows: count, // Tổng số bản ghi
+            totalPage: totalPage, // Tổng số trang
+            products: rows, // Danh sách sản phẩm
+        };
+
+        return {
+            errorCode: 0,
+            errorMessage: "Danh sách tìm kiếm sản phẩm!",
+            data: data,
+        };
+    } catch (error) {
+        console.error("Lỗi trong searchProductService:", error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
 //---------------------- Service Product Version
 
 //lấy tất cả ds sản phẩm - phiên bản (admin)
@@ -631,7 +682,7 @@ const getInfoProductSingleService = async (id) => {
             return {
                 errorCode: -1,
                 errorMessage: "Sản phẩm không tồn tại!",
-                data: [],
+                data: {},
             };
         }
     } catch (error) {
@@ -644,12 +695,17 @@ const getInfoProductSingleService = async (id) => {
     }
 };
 
-//hàm search product
-const searchProductService = async (page, limit, keywordSearch) => {
+// hàm lấy tìm kiếm sản phẩm theo keyword  (client)
+const searchAllProductByKeywordService = async (page, limit, keywordSearch) => {
     try {
         let offSet = (page - 1) * limit;
-
         const { count, rows } = await db.Product.findAndCountAll({
+            where: {
+                sTenSanPham: {
+                    [Op.like]: `%${keywordSearch}%`, // Tìm kiếm chuỗi chứa từ khóa
+                },
+            },
+            attributes: { exclude: ["createdAt", "updatedAt", "sMoTa"] },
             include: [
                 {
                     model: db.Category,
@@ -661,16 +717,24 @@ const searchProductService = async (page, limit, keywordSearch) => {
                     as: "brandData",
                     attributes: ["sTenNhanHang"],
                 },
-            ],
-            where: {
-                sTenSanPham: {
-                    [Op.like]: `%${keywordSearch}%`, // Tìm kiếm chuỗi chứa từ khóa
+                {
+                    model: db.ProductVersion,
+                    as: "versions",
+                    attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
                 },
-            },
+                {
+                    model: db.ProductImage,
+                    as: "images",
+                    attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
+                },
+                {
+                    model: db.Promotion,
+                    as: "promotion",
+                    attributes: ["fGiaTriKhuyenMai"],
+                },
+            ],
             offset: offSet,
             limit: limit,
-            raw: true,
-            nest: true,
         });
 
         let totalPage = Math.ceil(count / limit);
@@ -701,6 +765,7 @@ module.exports = {
     createNewProductService,
     updateProductService,
     deleteProductService,
+    searchProductService,
 
     getAllProductVersionService,
     getProductVersionWithPagination,
@@ -716,5 +781,5 @@ module.exports = {
 
     fetchAllProductWithPagination,
     getInfoProductSingleService,
-    searchProductService,
+    searchAllProductByKeywordService,
 };

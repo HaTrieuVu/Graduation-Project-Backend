@@ -126,6 +126,32 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+// hàm lấy tìm kiếm sản phẩm  (admin)
+const searchProduct = async (req, res) => {
+    try {
+        if (req?.query?.page && req?.query?.limit && req?.query?.keywordSearch) {
+            let page = req?.query?.page;
+            let limit = req?.query?.limit;
+            let keywordSearch = req?.query?.keywordSearch;
+
+            let data = await productService.searchProductService(+page, +limit, keywordSearch);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 //------------------------------- Product version
 
 // hàm lấy ds sản phẩm - phiên bản (admin)
@@ -415,15 +441,15 @@ const getInfoProductSingle = async (req, res) => {
     }
 };
 
-// hàm lấy tìm kiếm sản phẩm  (admin)
-const searchProduct = async (req, res) => {
+// hàm lấy tìm kiếm sản phẩm theo keyword  (client)
+const searchAllProductByKeyword = async (req, res) => {
     try {
         if (req?.query?.page && req?.query?.limit && req?.query?.keywordSearch) {
             let page = req?.query?.page;
             let limit = req?.query?.limit;
             let keywordSearch = req?.query?.keywordSearch;
 
-            let data = await productService.searchProductService(+page, +limit, keywordSearch);
+            let data = await productService.searchAllProductByKeywordService(+page, +limit, keywordSearch);
 
             return res.status(200).json({
                 errorCode: data.errorCode,
@@ -446,6 +472,7 @@ module.exports = {
     createNewProduct,
     updateProduct,
     deleteProduct,
+    searchProduct,
 
     getAllProductVersion,
     createNewProductVersion,
@@ -459,5 +486,5 @@ module.exports = {
 
     fetchAllProduct,
     getInfoProductSingle,
-    searchProduct,
+    searchAllProductByKeyword,
 };

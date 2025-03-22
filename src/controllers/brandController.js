@@ -103,9 +103,40 @@ const deleteBrand = async (req, res) => {
     }
 };
 
+//-------------- client
+// hàm lấy ds sản phẩm theo nhãn hàng
+const getAllProductByBrand = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({
+                errorCode: 1,
+                errorMessage: "Missing brand ID",
+                data: null,
+            });
+        }
+        let data = await brandService.getAllProductByBrandService(+id); // Convert id thành số
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+            data: data.data,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 module.exports = {
     getAllBrand,
     createNewBrand,
     updateBrand,
     deleteBrand,
+
+    getAllProductByBrand,
 };
