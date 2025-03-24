@@ -1,8 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
 import viewEngine from "./config/viewEngine";
-import initApiRoutes from "./route/api";
-import initWebRoutes from "./route/web";
+import initApiRoutes from "./routes/api";
+import initWebRoutes from "./routes/web";
 import connectDB from "./config/connectDB";
 // import cors from "cors";
 
@@ -36,6 +36,8 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 viewEngine(app);
+
+// init web routes
 initApiRoutes(app);
 initWebRoutes(app);
 

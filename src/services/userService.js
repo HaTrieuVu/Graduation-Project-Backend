@@ -1,6 +1,10 @@
+require("dotenv").config();
+
 import { Op } from "sequelize";
-import db from "../models/index";
 import bcrypt from "bcryptjs";
+
+import db from "../models/index";
+import { createJWT } from "../middleware/JWTAction";
 
 const salt = bcrypt.genSaltSync(10);
 
@@ -98,17 +102,28 @@ const handleLoginService = async (data) => {
                     },
                 ],
             },
-            attributes: { exclude: ["sEmail", "sSoDienThoai"] },
+            include: { model: db.Role, as: "role", attributes: ["sTenQuyenHan", "sMoTa"] },
+            attributes: { exclude: ["sTenDangNhap", "createdAt", "updatedAt"] },
             raw: true,
+            nest: true,
         });
         if (user) {
-            console.log("Tài khoản chính xác");
             let isCorrectPassword = await checkPassword(data?.password, user.sMatKhau);
             if (isCorrectPassword === true) {
                 let userData = {};
                 delete user.sMatKhau;
 
-                userData = user;
+                let payload = {
+                    phoneNumber: user?.sSoDienThoai,
+                    expiresIn: process.env.JWT_EXPIRES_IN,
+                };
+
+                let token = createJWT(payload);
+
+                userData = {
+                    user,
+                    access_token: token,
+                };
                 return {
                     errorCode: 0,
                     errorMessage: "Đăng nhập thành công!",
@@ -116,7 +131,6 @@ const handleLoginService = async (data) => {
                 };
             }
         }
-        console.log(">>> Email/Số điện thoại không tồn tại:", data?.valueLogin);
         return {
             errorCode: -1,
             errorMessage: "Email/Số điện thoại hoặc mật khẩu không chính xác!",
