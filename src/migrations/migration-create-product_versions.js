@@ -11,7 +11,9 @@ module.exports = {
             FK_iSanPhamID: {
                 type: Sequelize.INTEGER,
             },
-            sMauSac: Sequelize.STRING,
+            FK_iHinhAnhID: {
+                type: Sequelize.INTEGER,
+            },
             sDungLuong: Sequelize.STRING,
             fGiaBan: Sequelize.FLOAT,
             iSoLuong: Sequelize.INTEGER,

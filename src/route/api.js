@@ -50,6 +50,8 @@ let initApiRoutes = (app) => {
     router.put("/manage-product-version/update", productController.updateProductVersion);
     //api xóa sản phẩm
     router.delete("/manage-product-version/delete", productController.deleteProductVersion);
+    //apo lấy ds hình ảnh theo id sản phẩm
+    router.get("/manage-product-version/get-all-image", productController.getAllImageOfProduct);
 
     //----------------------------------- api manage Product Image ------------------------
     // api lấy ds sản phẩm - hình ảnh

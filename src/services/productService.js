@@ -1,7 +1,7 @@
 import db from "../models/index";
 const { Op } = require("sequelize");
 
-//---------------------- Service Product
+//------------------------------------------------------------ Service Product
 
 //lấy tất cả ds sản phẩm
 const getAllProductService = async () => {
@@ -230,7 +230,7 @@ const searchProductService = async (page, limit, keywordSearch) => {
     }
 };
 
-//---------------------- Service Product Version
+//--------------------------------------------------------- Service Product Version
 
 //lấy tất cả ds sản phẩm - phiên bản (admin)
 const getAllProductVersionService = async () => {
@@ -273,11 +273,14 @@ const getProductVersionWithPagination = async (page, limit) => {
                     as: "productData",
                     attributes: ["sTenSanPham"],
                 },
+                {
+                    model: db.ProductImage,
+                    as: "productImages",
+                    attributes: ["sMoTa"],
+                },
             ],
             offset: offSet,
             limit: limit,
-            raw: true,
-            nest: true,
         });
 
         let totalPage = Math.ceil(count / limit);
@@ -307,7 +310,7 @@ const createNewProductVersionService = async (data) => {
     try {
         await db.ProductVersion.create({
             FK_iSanPhamID: data.productId,
-            sMauSac: data.color,
+            FK_iHinhAnhID: data.productImageId,
             sDungLuong: data.capacity,
             fGiaBan: data.price,
             iSoLuong: data.quantity,
@@ -338,7 +341,7 @@ const updateProductVersionService = async (data) => {
         if (productVersion) {
             await productVersion.update({
                 FK_iSanPhamID: data.productId,
-                sMauSac: data.color,
+                FK_iHinhAnhID: data.productImageId,
                 sDungLuong: data.capacity,
                 fGiaBan: data.price,
                 iSoLuong: data.quantity,
@@ -397,8 +400,43 @@ const deleteProductVersionService = async (id) => {
     }
 };
 
-//---------------------- Service Product Image
+//hàm lấy ds hình ảnh của sản phẩm đó (admin)
+const getAllImageOfProductService = async (id) => {
+    try {
+        let products = await db.Product.findOne({
+            where: { PK_iSanPhamID: id },
+            include: [
+                {
+                    model: db.ProductImage,
+                    as: "images",
+                    attributes: ["PK_iHinhAnhID", "sMoTa"],
+                },
+            ],
+        });
+        if (products) {
+            return {
+                errorCode: 0,
+                errorMessage: "Danh sách hình ảnh của sản phẩm!",
+                data: products,
+            };
+        } else {
+            return {
+                errorCode: 0,
+                errorMessage: "Danh sách hình ảnh của sản phẩm trống!",
+                data: [],
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
 
+//--------------------------------------------------------- Service Product Image
 //lấy tất cả ds sản phẩm - hình ảnh (admin)
 const getAllProductImageService = async () => {
     try {
@@ -568,7 +606,7 @@ const deleteProductImageService = async (id) => {
     }
 };
 
-//-------------------------------- Client
+//----------------------------------------------------------------- Client
 
 // lấy ds sản phẩm theo phân trang để hiện thị phía client
 const fetchAllProductWithPagination = async (page, limit) => {
@@ -629,6 +667,7 @@ const fetchAllProductWithPagination = async (page, limit) => {
     }
 };
 
+// lấy thông tin 1 sản phẩm theo id
 const getInfoProductSingleService = async (id) => {
     try {
         let product = await db.Product.findOne({
@@ -649,6 +688,13 @@ const getInfoProductSingleService = async (id) => {
                     model: db.ProductVersion,
                     as: "versions",
                     attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
+                    include: [
+                        {
+                            model: db.ProductImage,
+                            as: "productImages",
+                            attributes: ["sUrl", "sMoTa"],
+                        },
+                    ],
                 },
                 {
                     model: db.ProductImage,
@@ -772,6 +818,7 @@ module.exports = {
     createNewProductVersionService,
     updateProductVersionService,
     deleteProductVersionService,
+    getAllImageOfProductService,
 
     getAllProductImageService,
     getProductImageWithPagination,

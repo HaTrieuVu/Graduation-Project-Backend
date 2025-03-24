@@ -9,6 +9,8 @@ module.exports = (sequelize, DataTypes) => {
             ProductVersion.hasMany(models.ImportReceiptDetail, { foreignKey: "FK_iPhienBanID", as: "importDetails" });
             ProductVersion.hasMany(models.CartDetail, { foreignKey: "FK_iPhienBanID", as: "cartDetails" });
             ProductVersion.hasMany(models.Warranty, { foreignKey: "FK_iPhienBanID", as: "warranties" });
+
+            ProductVersion.belongsTo(models.ProductImage, { foreignKey: "FK_iHinhAnhID", as: "productImages" });
         }
     }
 
@@ -16,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         {
             PK_iPhienBanID: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
             FK_iSanPhamID: DataTypes.INTEGER,
-            sMauSac: DataTypes.STRING,
+            FK_iHinhAnhID: DataTypes.INTEGER,
             sDungLuong: DataTypes.STRING,
             fGiaBan: DataTypes.FLOAT,
             iSoLuong: DataTypes.INTEGER,

@@ -192,7 +192,7 @@ const createNewProductVersion = async (req, res) => {
     try {
         if (
             !req.body.productId ||
-            !req.body.color ||
+            !req.body.productImageId ||
             !req.body.capacity ||
             !req.body.price ||
             !req.body.quantity ||
@@ -228,7 +228,7 @@ const updateProductVersion = async (req, res) => {
         if (
             !req.body.id ||
             !req.body.productId ||
-            !req.body.color ||
+            !req.body.productImageId ||
             !req.body.capacity ||
             !req.body.price ||
             !req.body.quantity ||
@@ -263,6 +263,28 @@ const deleteProductVersion = async (req, res) => {
     try {
         if (req?.body?.id) {
             let data = await productService.deleteProductVersionService(req?.body?.id);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+//hàm lấy ds hình ảnh của sản phẩm đó (admin)
+const getAllImageOfProduct = async (req, res) => {
+    try {
+        if (req?.query?.id) {
+            let data = await productService.getAllImageOfProductService(req?.query?.id);
 
             return res.status(200).json({
                 errorCode: data.errorCode,
@@ -478,6 +500,7 @@ module.exports = {
     createNewProductVersion,
     updateProductVersion,
     deleteProductVersion,
+    getAllImageOfProduct,
 
     getAllProductImage,
     createNewProductImage,
