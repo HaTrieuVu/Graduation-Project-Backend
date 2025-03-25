@@ -115,6 +115,7 @@ const handleLoginService = async (data) => {
 
                 let payload = {
                     phoneNumber: user?.sSoDienThoai,
+                    roleId: user?.FK_iQuyenHanID,
                     expiresIn: process.env.JWT_EXPIRES_IN,
                 };
 

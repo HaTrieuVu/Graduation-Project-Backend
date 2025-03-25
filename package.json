@@ -24,6 +24,7 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^2.2.5",
+    "path-to-regexp": "^8.2.0",
     "sequelize": "^6.6.2"
   },
   "devDependencies": {

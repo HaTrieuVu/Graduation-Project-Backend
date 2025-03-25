@@ -7,17 +7,18 @@ import brandController from "../controllers/brandController";
 import categoryController from "../controllers/categoryController";
 import roleController from "../controllers/roleController";
 
+import { checkUserJWT, checkUserPermission } from "../middleware/JWTAction";
+
 let router = express.Router();
 
 let initApiRoutes = (app) => {
+    router.all("*", checkUserJWT, checkUserPermission);
+
     //----------------------------------- api account ------------------------
     //api đăng ký tài khoản
     router.post("/register", useController.handleRegister);
-
     //api đăng nhập
     router.post("/login", useController.handleLogin);
-
-    //----------------------------------- api account end ------------------
 
     //----------------------------------- api manage user ------------------------
     //api lấy ds người dùng

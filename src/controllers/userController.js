@@ -40,6 +40,11 @@ const handleLogin = async (req, res) => {
 
         let data = await userService.handleLoginService(req.body);
 
+        if (data && data?.data?.access_token) {
+            //set cookie
+            res.cookie("jwt", data?.data?.access_token, { httpOnly: true, maxAge: 60 * 60 * 1000 });
+        }
+
         return res.status(200).json({
             errorCode: data.errorCode,
             errorMessage: data.errorMessage,
