@@ -104,6 +104,7 @@ const deleteBrand = async (req, res) => {
 };
 
 //-------------- client
+
 // hàm lấy ds sản phẩm theo nhãn hàng
 const getAllProductByBrand = async (req, res) => {
     try {

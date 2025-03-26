@@ -14,7 +14,7 @@ const nonSecurePaths = [
 ];
 
 // các đường dẫn mà đăng nhập rồi mới được quy cập, k phân quyền
-const authenticatedPaths = ["/product-single", "/products/search", "/feedback/send"];
+const authenticatedPaths = ["/product-single", "/products/search", "/feedback/send", "/cart/add-to-cart"];
 
 // hàm tạo JWT
 const createJWT = (payload) => {
@@ -117,7 +117,7 @@ const checkUserPermission = (req, res, next) => {
         }
         return res.status(403).json({
             errorCode: -1,
-            errorMessage: "Bạn không có quyền thực hiên!...",
+            errorMessage: "Bạn không có quyền thực hiện hành động này!",
             data: "",
         });
     } else {

@@ -2,6 +2,7 @@ import express from "express";
 
 import productController from "../controllers/productController";
 import brandController from "../controllers/brandController";
+import cartController from "../controllers/cartController";
 
 let router = express.Router();
 
@@ -17,8 +18,15 @@ let initWebRoutes = (app) => {
     router.get("/products/search", productController.searchAllProductByKeyword);
 
     //------------------------------- api Brand -------------------------------
+    //api lấy ds nhãn hàng
+    router.get("/brand/get-all", brandController.getAllProductByBrand);
+
     //api lấy ds sản phẩm theo nhãn hàng
     router.get("/product/brand/:id", brandController.getAllProductByBrand);
+
+    //---------------------------------- api Cart -----------------------------
+    //api lấy thêm sản phẩm vào giỏ hàng
+    router.post("/cart/add-to-cart", cartController.handleAddProductToCart);
 
     return app.use("/api/v1", router);
 };

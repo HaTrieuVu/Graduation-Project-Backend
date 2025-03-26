@@ -58,23 +58,48 @@ const registerUserService = async (data) => {
             };
         }
 
-        //hash password
+        // Hash password
         let hashPassword = hashPasswordUser(data.password);
 
-        //create new user
-        await db.Customer.create({
-            FK_iQuyenHanID: 3,
-            sHoTen: data.fullName,
-            sEmail: data.email,
-            sSoDienThoai: data.phoneNumber,
-            sDiaChi: data.address,
-            sMatKhau: hashPassword,
-        });
+        // Transaction để đảm bảo cả User và Cart được tạo thành công
+        const transaction = await db.sequelize.transaction();
+        try {
+            // Tạo khách hàng
+            const newCustomer = await db.Customer.create(
+                {
+                    FK_iQuyenHanID: 3,
+                    sHoTen: data.fullName,
+                    sEmail: data.email,
+                    sSoDienThoai: data.phoneNumber,
+                    sDiaChi: data.address,
+                    sMatKhau: hashPassword,
+                },
+                { transaction }
+            );
 
-        return {
-            errorCode: 0,
-            errorMessage: "Đăng ký tài khoản thành công!",
-        };
+            // Tạo giỏ hàng rỗng cho khách hàng
+            await db.Cart.create(
+                {
+                    FK_iKhachHangID: newCustomer.PK_iKhachHangID,
+                },
+                { transaction }
+            );
+
+            // Commit transaction
+            await transaction.commit();
+
+            return {
+                errorCode: 0,
+                errorMessage: "Đăng ký tài khoản thành công!",
+            };
+        } catch (error) {
+            await transaction.rollback();
+            console.log("Error when creating user & cart:", error);
+            return {
+                errorCode: -1,
+                errorMessage: "Đã xảy ra lỗi khi tạo tài khoản!",
+            };
+        }
     } catch (error) {
         console.log("error from service", error);
         return {
@@ -102,7 +127,19 @@ const handleLoginService = async (data) => {
                     },
                 ],
             },
-            include: { model: db.Role, as: "role", attributes: ["sTenQuyenHan", "sMoTa"] },
+            include: [
+                {
+                    model: db.Role,
+                    as: "role",
+                    attributes: ["sTenQuyenHan", "sMoTa"],
+                },
+                {
+                    model: db.Cart,
+                    as: "carts",
+                    attributes: ["PK_iGioHangID"],
+                },
+            ],
+
             attributes: { exclude: ["sTenDangNhap", "createdAt", "updatedAt"] },
             raw: true,
             nest: true,
