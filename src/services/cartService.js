@@ -127,7 +127,100 @@ const getAllInfoToCartService = async (data) => {
     }
 };
 
+const handleToggleCartQuantityService = async ({ userId, cartId, cartDetailId, productVersionId, type }) => {
+    try {
+        const cart = await db.Cart.findOne({
+            where: { PK_iGioHangID: cartId, FK_iKhachHangID: userId },
+        });
+
+        if (!cart) {
+            return {
+                errorCode: 1,
+                errorMessage: "Giỏ hàng không hợp lệ!",
+            };
+        }
+
+        // Tìm chi tiết giỏ hàng
+        const cartDetail = await db.CartDetail.findOne({
+            where: { PK_iChiTietGioHangID: cartDetailId, FK_iGioHangID: cartId },
+        });
+
+        if (!cartDetail) {
+            return { errorCode: 2, errorMessage: "Sản phẩm không tồn tại trong giỏ hàng." };
+        }
+
+        // Lấy thông tin sản phẩm từ ProductVersion
+        const productVersion = await db.ProductVersion.findOne({
+            where: { PK_iPhienBanID: productVersionId },
+        });
+
+        if (!productVersion) {
+            return { errorCode: 3, errorMessage: "Phiên bản sản phẩm không hợp lệ." };
+        }
+
+        let newQuantity = cartDetail.iSoLuong;
+
+        // Xử lý tăng/giảm số lượng
+        if (type === "INC") {
+            newQuantity += 1;
+        } else if (type === "DEC") {
+            newQuantity -= 1;
+        }
+
+        // Kiểm tra giới hạn số lượng
+        if (newQuantity > productVersion.iSoLuong) {
+            newQuantity = productVersion.iSoLuong;
+            return { errorCode: 5, errorMessage: "Số lượng mua không thể vượt quá tồn kho của sản phẩm!" };
+        } else if (newQuantity < 1) {
+            return { errorCode: 4, errorMessage: "Số lượng sản phẩm trong giỏ hàng không thể nhỏ hơn 1." };
+        }
+
+        // Cập nhật số lượng trong CartDetail
+        await cartDetail.update({ iSoLuong: newQuantity });
+
+        return { errorCode: 0, errorMessage: "Cập nhật số lượng thành công." };
+    } catch (error) {
+        console.error("Lỗi cập nhật giỏ hàng:", error);
+        return { errorCode: 500, errorMessage: "Lỗi server." };
+    }
+};
+
+const handleRemoveProductFromCartService = async ({ userId, cartId, cartDetailId }) => {
+    console.log(userId, cartId, cartDetailId);
+    try {
+        const cart = await db.Cart.findOne({
+            where: { PK_iGioHangID: cartId, FK_iKhachHangID: userId },
+        });
+
+        if (!cart) {
+            return {
+                errorCode: 1,
+                errorMessage: "Giỏ hàng không hợp lệ!",
+            };
+        }
+
+        // Tìm chi tiết giỏ hàng
+        const cartDetail = await db.CartDetail.findOne({
+            where: { PK_iChiTietGioHangID: cartDetailId, FK_iGioHangID: cartId },
+        });
+
+        if (!cartDetail) {
+            return { errorCode: 2, errorMessage: "Sản phẩm không tồn tại trong giỏ hàng." };
+        }
+
+        // Xóa sản phẩm khỏi giỏ hàng
+        await cartDetail.destroy();
+
+        return { errorCode: 0, errorMessage: "Xóa sản phẩm khỏi giỏ hàng thành công." };
+    } catch (error) {
+        console.error("Lỗi xóa sản phẩm khỏi giỏ hàng:", error);
+        return { errorCode: 500, errorMessage: "Lỗi server." };
+    }
+};
+
 module.exports = {
     handleAddProductToCartService,
     getAllInfoToCartService,
+    handleToggleCartQuantityService,
+    handleRemoveProductFromCartService,
 };

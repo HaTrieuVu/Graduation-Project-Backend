@@ -54,7 +54,63 @@ const getAllInfoToCart = async (req, res) => {
     }
 };
 
+//hàm thêm. giảm số lượng sp trong giỏ hàng
+const handleToggleCartQuantity = async (req, res) => {
+    try {
+        if (
+            !req.body.userId ||
+            !req.body.cartId ||
+            !req.body.cartDetailId ||
+            !req.body.productVersionId ||
+            !req.body.type
+        ) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+            });
+        }
+
+        let data = await cartService.handleToggleCartQuantityService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+        });
+    }
+};
+
+//hàm thêm. giảm số lượng sp trong giỏ hàng
+const handleRemoveProductFromCart = async (req, res) => {
+    try {
+        if (!req.body.userId || !req.body.cartId || !req.body.cartDetailId) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+            });
+        }
+
+        let data = await cartService.handleRemoveProductFromCartService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+        });
+    }
+};
+
 module.exports = {
     handleAddProductToCart,
     getAllInfoToCart,
+    handleToggleCartQuantity,
+    handleRemoveProductFromCart,
 };

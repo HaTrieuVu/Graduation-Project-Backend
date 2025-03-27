@@ -20,6 +20,8 @@ const authenticatedPaths = [
     "/feedback/send",
     "/cart/add-to-cart",
     "/cart/get-info-to-cart",
+    "/cart/toggle-cart-quantity",
+    "/cart/remove-produt-from-cart",
 ];
 
 // hàm tạo JWT

@@ -643,6 +643,7 @@ const fetchAllProductWithPagination = async (page, limit) => {
             ],
             offset: offSet,
             limit: limit,
+            distinct: true,
         });
 
         let totalPage = Math.ceil(count / limit);

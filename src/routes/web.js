@@ -31,6 +31,12 @@ let initWebRoutes = (app) => {
     //api lấy tất cả sp trong giỏ hàng
     router.post("/cart/get-info-to-cart", cartController.getAllInfoToCart);
 
+    // api tăng, giảm số lượng của sản phẩm trong giỏ hàng
+    router.post("/cart/toggle-cart-quantity", cartController.handleToggleCartQuantity);
+
+    // api xóa sản phẩm khỏi giỏ hàng
+    router.post("/cart/remove-produt-from-cart", cartController.handleRemoveProductFromCart);
+
     return app.use("/api/v1", router);
 };
 module.exports = initWebRoutes;
