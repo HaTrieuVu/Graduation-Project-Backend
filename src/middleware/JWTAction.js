@@ -14,7 +14,13 @@ const nonSecurePaths = [
 ];
 
 // các đường dẫn mà đăng nhập rồi mới được quy cập, k phân quyền
-const authenticatedPaths = ["/product-single", "/products/search", "/feedback/send", "/cart/add-to-cart"];
+const authenticatedPaths = [
+    "/product-single",
+    "/products/search",
+    "/feedback/send",
+    "/cart/add-to-cart",
+    "/cart/get-info-to-cart",
+];
 
 // hàm tạo JWT
 const createJWT = (payload) => {
@@ -44,7 +50,7 @@ const verifyToken = (token) => {
     return decoded;
 };
 
-//middleware check user login chưa
+//middleware check user login chưa /account
 const checkUserJWT = (req, res, next) => {
     if (nonSecurePaths.some((path) => req.path.startsWith(path))) {
         return next();
@@ -58,6 +64,7 @@ const checkUserJWT = (req, res, next) => {
 
         if (decoded) {
             req.user = decoded; // gán dữ liệu(token) để gửi cho middlewale sau (checkUserPermission)
+            // req.token = token;
             return next();
         } else {
             return res.status(401).json({
@@ -84,6 +91,9 @@ const checkUserJWT = (req, res, next) => {
 
 //middleware check quyền
 const checkUserPermission = (req, res, next) => {
+    if (req.path === "/account") {
+        next();
+    }
     if (nonSecurePaths.some((path) => req.path.startsWith(path))) {
         return next();
     }

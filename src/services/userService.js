@@ -151,8 +151,11 @@ const handleLoginService = async (data) => {
                 delete user.sMatKhau;
 
                 let payload = {
-                    phoneNumber: user?.sSoDienThoai,
+                    userId: user?.PK_iKhachHangID,
                     roleId: user?.FK_iQuyenHanID,
+                    cartId: user?.carts?.PK_iGioHangID,
+                    userName: user?.sHoTen,
+                    phoneNumber: user?.sSoDienThoai,
                     expiresIn: process.env.JWT_EXPIRES_IN,
                 };
 

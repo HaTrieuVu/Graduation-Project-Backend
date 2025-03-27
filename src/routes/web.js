@@ -25,8 +25,11 @@ let initWebRoutes = (app) => {
     router.get("/product/brand/:id", brandController.getAllProductByBrand);
 
     //---------------------------------- api Cart -----------------------------
-    //api lấy thêm sản phẩm vào giỏ hàng
+    //api thêm sản phẩm vào giỏ hàng
     router.post("/cart/add-to-cart", cartController.handleAddProductToCart);
+
+    //api lấy tất cả sp trong giỏ hàng
+    router.post("/cart/get-info-to-cart", cartController.getAllInfoToCart);
 
     return app.use("/api/v1", router);
 };

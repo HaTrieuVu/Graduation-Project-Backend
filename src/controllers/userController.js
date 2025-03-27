@@ -169,6 +169,18 @@ const deleteUser = async (req, res) => {
     }
 };
 
+//hàm lấy thông tin người dùng từ cookie
+const getUserInfoAccount = async (req, res) => {
+    return res.status(200).json({
+        errorCode: 0,
+        errorMessage: "Ok!",
+        data: {
+            // access_token: req.token,
+            user: req.user,
+        },
+    });
+};
+
 module.exports = {
     handleRegister,
     handleLogin,
@@ -176,4 +188,5 @@ module.exports = {
     createNewUser,
     updateUser,
     deleteUser,
+    getUserInfoAccount,
 };

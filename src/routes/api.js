@@ -19,6 +19,8 @@ let initApiRoutes = (app) => {
     router.post("/register", useController.handleRegister);
     //api đăng nhập
     router.post("/login", useController.handleLogin);
+    //api lấy thông tin người dùng từ cookie
+    router.get("/account", useController.getUserInfoAccount);
 
     //----------------------------------- api manage user ------------------------
     //api lấy ds người dùng
