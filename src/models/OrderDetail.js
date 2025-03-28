@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
             FK_iDonMuaHangID: DataTypes.INTEGER,
             FK_iPhienBanID: DataTypes.INTEGER,
             iSoLuong: DataTypes.INTEGER,
+            fGiaGoc: DataTypes.FLOAT, // 🔹 Thêm - Giá gốc sản phẩm
             fGiaBan: DataTypes.FLOAT,
             fThanhTien: DataTypes.FLOAT,
         },

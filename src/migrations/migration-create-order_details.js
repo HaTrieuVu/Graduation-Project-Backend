@@ -15,6 +15,7 @@ module.exports = {
                 type: Sequelize.INTEGER,
             },
             iSoLuong: Sequelize.INTEGER,
+            fGiaGoc: Sequelize.FLOAT,
             fGiaBan: Sequelize.FLOAT,
             fThanhTien: Sequelize.FLOAT,
             createdAt: {

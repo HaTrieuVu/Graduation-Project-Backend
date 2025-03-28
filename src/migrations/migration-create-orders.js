@@ -16,8 +16,10 @@ module.exports = {
             },
             dNgayLapDon: Sequelize.DATE,
             fTongTien: Sequelize.FLOAT,
+            fPhiShip: Sequelize.FLOAT,
             sPhuongThucThanhToan: Sequelize.STRING,
             sTrangThaiDonHang: Sequelize.STRING,
+            sTrangThaiThanhToan: Sequelize.STRING,
             dNgayGiaoHang: Sequelize.DATE,
             createdAt: {
                 allowNull: false,

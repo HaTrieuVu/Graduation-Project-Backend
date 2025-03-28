@@ -59,6 +59,24 @@ const handleLogin = async (req, res) => {
     }
 };
 
+//hàm đăng xuất
+const handleLogout = async (req, res) => {
+    try {
+        res.clearCookie("jwt");
+
+        return res.status(200).json({
+            errorCode: 0,
+            errorMessage: "Đăng xuất thành công!",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 // hàm lấy ds người dùng (admin)
 const getAllUser = async (req, res) => {
     try {
@@ -184,6 +202,7 @@ const getUserInfoAccount = async (req, res) => {
 module.exports = {
     handleRegister,
     handleLogin,
+    handleLogout,
     getAllUser,
     createNewUser,
     updateUser,

@@ -18,8 +18,10 @@ module.exports = (sequelize, DataTypes) => {
             FK_iKhachHangID: DataTypes.INTEGER,
             dNgayLapDon: DataTypes.DATE,
             fTongTien: DataTypes.FLOAT,
+            fPhiShip: DataTypes.FLOAT,
             sPhuongThucThanhToan: DataTypes.STRING,
             sTrangThaiDonHang: DataTypes.STRING,
+            sTrangThaiThanhToan: DataTypes.STRING,
             dNgayGiaoHang: DataTypes.DATE,
         },
         {
