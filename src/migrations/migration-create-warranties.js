@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("suppliers", {
+        await queryInterface.createTable("warranties", {
             PK_iPhieuBaoHanhID: {
                 allowNull: false,
                 autoIncrement: true,
@@ -14,7 +14,8 @@ module.exports = {
             FK_iPhienBanID: {
                 type: Sequelize.INTEGER,
             },
-            dNgayGuiYeuCau: Sequelize.DATE,
+            dNgayLap: Sequelize.DATE,
+            dNgayKetThucBaoHanh: Sequelize.DATE,
             sTrangThaiXuLy: Sequelize.STRING,
             sMota: Sequelize.STRING,
             createdAt: {

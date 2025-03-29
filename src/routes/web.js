@@ -5,6 +5,7 @@ import productController from "../controllers/productController";
 import brandController from "../controllers/brandController";
 import cartController from "../controllers/cartController";
 import orderController from "../controllers/orderController";
+import notificationController from "../controllers/notificationController";
 
 let router = express.Router();
 
@@ -46,6 +47,10 @@ let initWebRoutes = (app) => {
     //---------------------------------- api Order -----------------------------
     // api đặt hàng
     router.post("/order/order-product", orderController.handleOrderProduct);
+
+    //---------------------------------- api Notification -----------------------------
+    // api lây thống báo của người dùng (tb của đơn đặt hàng)
+    router.get("/notification/get-info", notificationController.getNotification);
 
     return app.use("/api/v1", router);
 };

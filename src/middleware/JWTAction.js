@@ -25,6 +25,7 @@ const authenticatedPaths = [
     "/logout",
     "/user/get-info",
     "/order/order-product",
+    "/notification/get-info",
 ];
 
 // hàm tạo JWT
