@@ -199,6 +199,34 @@ const getUserInfoAccount = async (req, res) => {
     });
 };
 
+//hàm lấy thông tin 1 người dùng
+const getUserInfo = async (req, res) => {
+    try {
+        if (!req?.query?.id) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+                data: "",
+            });
+        }
+
+        let data = await userService.getUserInfoService(req?.query?.id);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+            data: data.data,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 module.exports = {
     handleRegister,
     handleLogin,
@@ -208,4 +236,5 @@ module.exports = {
     updateUser,
     deleteUser,
     getUserInfoAccount,
+    getUserInfo,
 };

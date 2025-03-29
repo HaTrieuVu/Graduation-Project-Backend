@@ -366,6 +366,37 @@ const deleteUserService = async (id) => {
     }
 };
 
+//lấy thông tin người dùng
+const getUserInfoService = async (id) => {
+    try {
+        let user = await db.Customer.findOne({
+            where: { PK_iKhachHangID: id },
+            attributes: ["PK_iKhachHangID", "sHoTen", "sEmail", "sSoDienThoai", "sDiaChi"],
+        });
+
+        if (user) {
+            return {
+                errorCode: 0,
+                errorMessage: "Thông tin người dùng!",
+                data: user,
+            };
+        } else {
+            return {
+                errorCode: -1,
+                errorMessage: "Người dùng không tồn tại",
+                data: [],
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
 //-------------------- user service end --------------------
 
 module.exports = {
@@ -376,4 +407,5 @@ module.exports = {
     createNewUserService,
     updateUserService,
     deleteUserService,
+    getUserInfoService,
 };

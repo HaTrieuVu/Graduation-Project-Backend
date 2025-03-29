@@ -1,12 +1,18 @@
 import express from "express";
 
+import userController from "../controllers/userController";
 import productController from "../controllers/productController";
 import brandController from "../controllers/brandController";
 import cartController from "../controllers/cartController";
+import orderController from "../controllers/orderController";
 
 let router = express.Router();
 
 let initWebRoutes = (app) => {
+    //----------------------------------- api User------------------------------
+    //api lấy thông tin của 1 người dùng
+    router.get("/user/get-info", userController.getUserInfo);
+
     //----------------------------------- api Product ------------------------
     // api lấy ds sản phẩm
     router.get("/products/get-all", productController.fetchAllProduct);
@@ -36,6 +42,10 @@ let initWebRoutes = (app) => {
 
     // api xóa sản phẩm khỏi giỏ hàng
     router.post("/cart/remove-produt-from-cart", cartController.handleRemoveProductFromCart);
+
+    //---------------------------------- api Order -----------------------------
+    // api đặt hàng
+    router.post("/order/order-product", orderController.handleOrderProduct);
 
     return app.use("/api/v1", router);
 };
