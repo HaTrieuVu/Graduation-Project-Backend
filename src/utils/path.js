@@ -18,7 +18,24 @@ const rolesCustomer = [
     },
 ];
 
+// các đường dẫn mà đăng nhập rồi mới được quy cập, k phân quyền
+const authenticatedPaths = [
+    "/product-single",
+    "/products/search",
+    "/feedback/send",
+    "/cart/add-to-cart",
+    "/cart/get-info-to-cart",
+    "/cart/toggle-cart-quantity",
+    "/cart/remove-produt-from-cart",
+    "/logout",
+    "/user/get-info",
+    "/order/order-product",
+    "/notification/get-info",
+    "/notification/delete-notify",
+];
+
 module.exports = {
     rolesEmployee,
     rolesCustomer,
+    authenticatedPaths,
 };

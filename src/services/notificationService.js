@@ -4,7 +4,7 @@ const getNotificationService = async (id) => {
     try {
         let notification = await db.Notification.findAll({
             where: { FK_iKhachHangID: id },
-            attributes: ["sNoiDung"],
+            attributes: ["sNoiDung", "PK_iThongBaoID"],
             include: [
                 {
                     model: db.Order,
@@ -65,6 +65,34 @@ const getNotificationService = async (id) => {
     }
 };
 
+const deleteNotificationService = async (id) => {
+    try {
+        let notification = await db.Notification.findOne({
+            where: { PK_iThongBaoID: id },
+        });
+
+        if (notification) {
+            await notification.destroy();
+            return {
+                errorCode: 0,
+                errorMessage: "Xóa thông báo thành công!",
+            };
+        } else {
+            return {
+                errorCode: -1,
+                errorMessage: "Không tìm thấy thông báo!",
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+        };
+    }
+};
+
 module.exports = {
     getNotificationService,
+    deleteNotificationService,
 };

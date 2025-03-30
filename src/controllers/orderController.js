@@ -1,5 +1,64 @@
 import orderService from "../services/orderService";
 
+// lấy ds đơn hàng (admin)
+const getAllOrder = async (req, res) => {
+    try {
+        if (!req?.query?.page || !req?.query?.limit) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc - order!",
+            });
+        }
+
+        if (req?.query?.page && req?.query?.limit) {
+            let page = req?.query?.page;
+            let limit = req?.query?.limit;
+
+            let data = await orderService.getOrderWithPagination(+page, +limit);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm cập nhật trang thái đơn hàng
+const updateOrderStatus = async (req, res) => {
+    try {
+        if ((!req.body.orderId && !req.body.orderStatus) || (!req.body.orderId && !req.body.paymentStatus)) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc - order!",
+            });
+        }
+
+        let data = await orderService.updateOrderStatusService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+//hàm đặt đơn mua hàng (khách hàng)
 const handleOrderProduct = async (req, res) => {
     try {
         if (
@@ -32,5 +91,7 @@ const handleOrderProduct = async (req, res) => {
 };
 
 module.exports = {
+    getAllOrder,
+    updateOrderStatus,
     handleOrderProduct,
 };

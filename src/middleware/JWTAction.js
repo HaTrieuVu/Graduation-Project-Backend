@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 import jwt from "jsonwebtoken";
-import { rolesEmployee, rolesCustomer } from "../utils/path";
+import { rolesEmployee, rolesCustomer, authenticatedPaths } from "../utils/path";
 
 // các đường dẫn mà k cần đăng nhập, hạn chế quyền vẫn truy cập được
 const nonSecurePaths = [
@@ -11,21 +11,6 @@ const nonSecurePaths = [
     "/manage-category/get-all",
     "/products/get-all",
     "/product/brand",
-];
-
-// các đường dẫn mà đăng nhập rồi mới được quy cập, k phân quyền
-const authenticatedPaths = [
-    "/product-single",
-    "/products/search",
-    "/feedback/send",
-    "/cart/add-to-cart",
-    "/cart/get-info-to-cart",
-    "/cart/toggle-cart-quantity",
-    "/cart/remove-produt-from-cart",
-    "/logout",
-    "/user/get-info",
-    "/order/order-product",
-    "/notification/get-info",
 ];
 
 // hàm tạo JWT

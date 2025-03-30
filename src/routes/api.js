@@ -5,6 +5,7 @@ import productController from "../controllers/productController";
 import supplierController from "../controllers/supplierController";
 import brandController from "../controllers/brandController";
 import categoryController from "../controllers/categoryController";
+import orderController from "../controllers/orderController";
 import roleController from "../controllers/roleController";
 
 import { checkUserJWT, checkUserPermission } from "../middleware/JWTAction";
@@ -97,6 +98,14 @@ let initApiRoutes = (app) => {
     router.put("/manage-category/update", categoryController.updateCategory);
     //api xóa danh mục sp
     router.delete("/manage-category/delete", categoryController.deleteCategory);
+
+    //----------------------------------- api manage Order ------------------------
+    // api lấy ds đơn mua hàng
+    router.get("/manage-order/get-all", orderController.getAllOrder);
+    // api cập nhật trạng thái dơn hàng
+    router.put("/manage-order/update", orderController.updateOrderStatus);
+    // api lọc ds đơn mua hàng theo trạng thái đơn hàng
+    router.post("/manage-order/update", orderController.updateOrderStatus);
 
     //----------------------------------- api manage Role ------------------------
     // api lấy ds role

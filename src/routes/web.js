@@ -49,8 +49,11 @@ let initWebRoutes = (app) => {
     router.post("/order/order-product", orderController.handleOrderProduct);
 
     //---------------------------------- api Notification -----------------------------
-    // api lây thống báo của người dùng (tb của đơn đặt hàng)
+    // api lấy thông báo của người dùng (tb của đơn đặt hàng)
     router.get("/notification/get-info", notificationController.getNotification);
+
+    // api xóa thông báo của người dùng
+    router.delete("/notification/delete-notify", notificationController.deleteNotification);
 
     return app.use("/api/v1", router);
 };

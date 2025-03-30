@@ -1,5 +1,125 @@
 import db from "../models/index";
 
+// lấy ds đơn mua hàng theo phân trang (admin)
+const getOrderWithPagination = async (page, limit) => {
+    try {
+        let offSet = (page - 1) * limit;
+        const { count, rows } = await db.Order.findAndCountAll({
+            attributes: { exclude: ["createdAt", "updatedAt", "fPhiShip", "FK_iNhanVienID"] },
+            include: [
+                {
+                    model: db.Customer,
+                    as: "customer",
+                    attributes: ["sHoTen", "sSoDienThoai", "sDiaChi"],
+                },
+                {
+                    model: db.OrderDetail,
+                    as: "orderDetails",
+                    attributes: ["FK_iPhienBanID"],
+                    include: [
+                        {
+                            model: db.ProductVersion,
+                            as: "productVersion",
+                            attributes: ["sDungLuong"],
+                            include: [
+                                {
+                                    model: db.Product,
+                                    as: "productData",
+                                    attributes: ["sTenSanPham"],
+                                },
+                                {
+                                    model: db.ProductImage,
+                                    as: "productImages",
+                                    attributes: ["sMoTa"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+            offset: offSet,
+            limit: limit,
+            raw: true,
+            nest: true,
+        });
+
+        let totalPage = Math.ceil(count / limit);
+        let data = {
+            totalRows: count, //tổng có tất cả bao nhiêu bản ghi
+            totalPage: totalPage,
+            orders: rows,
+        };
+
+        return {
+            errorCode: 0,
+            errorMessage: "Danh sách đơn mua hàng!",
+            data: data,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
+//cập nhật trạng thái đơn hàng (admin)
+const updateOrderStatusService = async (data) => {
+    try {
+        let order = await db.Order.findOne({
+            where: { PK_iDonMuaHangID: data.orderId },
+        });
+
+        if (!order) {
+            return {
+                errorCode: -1,
+                errorMessage: "Đơn hàng không tồn tại!",
+            };
+        }
+
+        // Cập nhật trạng thái đơn hàng nếu có
+        await order.update({
+            sTrangThaiDonHang: data.orderStatus || order.sTrangThaiDonHang,
+            sTrangThaiThanhToan: data.paymentStatus || order.sTrangThaiThanhToan,
+        });
+
+        // Tìm thông báo của đơn hàng
+        let notification = await db.Notification.findOne({
+            where: { FK_iDonMuaHangID: data.orderId },
+        });
+
+        const message = `Đơn hàng #34304${data.orderId} đã được xác nhận!`;
+
+        if (notification) {
+            // Cập nhật nội dung thông báo
+            await notification.update({ sNoiDung: message });
+        } else {
+            // Tạo thông báo mới nếu không tìm thấy
+            await db.Notification.create({
+                FK_iKhachHangID: order.FK_iKhachHangID,
+                FK_iDonMuaHangID: data.orderId,
+                sNoiDung: message,
+                dThoiGianGui: new Date(),
+                sTrangThaiDoc: false,
+            });
+        }
+
+        return {
+            errorCode: 0,
+            errorMessage: "Cập nhật trạng thái đơn hàng thành công!",
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
 const handleOrderProductService = async (data) => {
     const transaction = await db.sequelize.transaction();
     try {
@@ -102,5 +222,7 @@ const handleOrderProductService = async (data) => {
 };
 
 module.exports = {
+    getOrderWithPagination,
+    updateOrderStatusService,
     handleOrderProductService,
 };
