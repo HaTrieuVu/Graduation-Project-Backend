@@ -1,11 +1,14 @@
 import db from "../models/index";
 
-// lấy ds đơn mua hàng theo phân trang (admin)
-const getOrderWithPagination = async (page, limit) => {
+// lấy ds đơn mua hàng theo trạng thái (admin - phân trang)
+const getOrdersByStatusService = async (page, limit, statusOrder) => {
     try {
         let offSet = (page - 1) * limit;
+        const whereCondition = statusOrder === "all" ? {} : { sTrangThaiDonHang: statusOrder };
+
         const { count, rows } = await db.Order.findAndCountAll({
             attributes: { exclude: ["createdAt", "updatedAt", "fPhiShip", "FK_iNhanVienID"] },
+            where: whereCondition,
             include: [
                 {
                     model: db.Customer,
@@ -222,7 +225,7 @@ const handleOrderProductService = async (data) => {
 };
 
 module.exports = {
-    getOrderWithPagination,
+    getOrdersByStatusService,
     updateOrderStatusService,
     handleOrderProductService,
 };

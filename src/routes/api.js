@@ -100,12 +100,10 @@ let initApiRoutes = (app) => {
     router.delete("/manage-category/delete", categoryController.deleteCategory);
 
     //----------------------------------- api manage Order ------------------------
-    // api lấy ds đơn mua hàng
-    router.get("/manage-order/get-all", orderController.getAllOrder);
+    // api lọc ds đơn mua hàng theo trạng thái đơn hàng
+    router.get("/manage-order/get-orders-by-status", orderController.getOrdersByStatus);
     // api cập nhật trạng thái dơn hàng
     router.put("/manage-order/update", orderController.updateOrderStatus);
-    // api lọc ds đơn mua hàng theo trạng thái đơn hàng
-    router.post("/manage-order/update", orderController.updateOrderStatus);
 
     //----------------------------------- api manage Role ------------------------
     // api lấy ds role

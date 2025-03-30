@@ -1,20 +1,21 @@
 import orderService from "../services/orderService";
 
 // lấy ds đơn hàng (admin)
-const getAllOrder = async (req, res) => {
+const getOrdersByStatus = async (req, res) => {
     try {
-        if (!req?.query?.page || !req?.query?.limit) {
+        if (!req?.query?.page || !req?.query?.limit || !req?.query?.statusOrder) {
             return res.status(200).json({
                 errorCode: 1,
                 errorMessage: "Thiếu tham số bắt buộc - order!",
             });
         }
 
-        if (req?.query?.page && req?.query?.limit) {
+        if (req?.query?.page && req?.query?.limit && req?.query?.statusOrder) {
             let page = req?.query?.page;
             let limit = req?.query?.limit;
+            let statusOrder = req?.query?.statusOrder;
 
-            let data = await orderService.getOrderWithPagination(+page, +limit);
+            let data = await orderService.getOrdersByStatusService(+page, +limit, statusOrder);
 
             return res.status(200).json({
                 errorCode: data.errorCode,
@@ -91,7 +92,7 @@ const handleOrderProduct = async (req, res) => {
 };
 
 module.exports = {
-    getAllOrder,
+    getOrdersByStatus,
     updateOrderStatus,
     handleOrderProduct,
 };
