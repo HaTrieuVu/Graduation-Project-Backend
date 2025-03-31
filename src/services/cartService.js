@@ -170,13 +170,14 @@ const handleToggleCartQuantityService = async ({ userId, cartId, cartDetailId, p
         // Kiểm tra giới hạn số lượng
         if (newQuantity > productVersion.iSoLuong) {
             newQuantity = productVersion.iSoLuong;
+            await cartDetail.update({ iSoLuong: newQuantity });
             return { errorCode: 5, errorMessage: "Số lượng mua không thể vượt quá tồn kho của sản phẩm!" };
         } else if (newQuantity < 1) {
             return { errorCode: 4, errorMessage: "Số lượng sản phẩm trong giỏ hàng không thể nhỏ hơn 1." };
         }
 
         // Cập nhật số lượng trong CartDetail
-        await cartDetail.update({ iSoLuong: newQuantity });
+        // await cartDetail.update({ iSoLuong: newQuantity });
 
         return { errorCode: 0, errorMessage: "Cập nhật số lượng thành công." };
     } catch (error) {
@@ -186,7 +187,6 @@ const handleToggleCartQuantityService = async ({ userId, cartId, cartDetailId, p
 };
 
 const handleRemoveProductFromCartService = async ({ userId, cartId, cartDetailId }) => {
-    console.log(userId, cartId, cartDetailId);
     try {
         const cart = await db.Cart.findOne({
             where: { PK_iGioHangID: cartId, FK_iKhachHangID: userId },

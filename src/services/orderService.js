@@ -18,7 +18,7 @@ const getOrdersByStatusService = async (page, limit, statusOrder) => {
                 {
                     model: db.OrderDetail,
                     as: "orderDetails",
-                    attributes: ["FK_iPhienBanID"],
+                    attributes: ["FK_iPhienBanID", "iSoLuong"],
                     include: [
                         {
                             model: db.ProductVersion,
@@ -82,6 +82,16 @@ const updateOrderStatusService = async (data) => {
             };
         }
 
+        // Xác định nội dung thông báo dựa trên trạng thái đơn hàng
+        let message = `Đơn hàng #${data.orderId} đã được xác nhận!`;
+        if (data.orderStatus === "Đang giao hàng") {
+            message = `Đơn hàng #${data.orderId} đang được giao!`;
+        } else if (data.orderStatus === "Giao hàng thành công") {
+            message = `Đơn hàng #${data.orderId} đã được giao thành công!`;
+        } else if (data.orderStatus === "Đã hủy") {
+            message = `Đơn hàng #${data.orderId} đã bị hủy!`;
+        }
+
         // Cập nhật trạng thái đơn hàng nếu có
         await order.update({
             sTrangThaiDonHang: data.orderStatus || order.sTrangThaiDonHang,
@@ -92,8 +102,6 @@ const updateOrderStatusService = async (data) => {
         let notification = await db.Notification.findOne({
             where: { FK_iDonMuaHangID: data.orderId },
         });
-
-        const message = `Đơn hàng #34304${data.orderId} đã được xác nhận!`;
 
         if (notification) {
             // Cập nhật nội dung thông báo
@@ -107,6 +115,19 @@ const updateOrderStatusService = async (data) => {
                 dThoiGianGui: new Date(),
                 sTrangThaiDoc: false,
             });
+        }
+
+        // Nếu đơn hàng bị hủy, hoàn lại số lượng sản phẩm
+        if (data.orderStatus === "Đã hủy" && data.productVersionId && data.quantity) {
+            let productVersion = await db.ProductVersion.findOne({
+                where: { PK_iPhienBanID: data.productVersionId },
+            });
+
+            if (productVersion) {
+                await productVersion.update({
+                    iSoLuong: productVersion.iSoLuong + data.quantity,
+                });
+            }
         }
 
         return {
