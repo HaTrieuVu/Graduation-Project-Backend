@@ -14,6 +14,7 @@ module.exports = {
             FK_iNhaCungCapID: {
                 type: Sequelize.INTEGER,
             },
+            fTongTien: Sequelize.FLOAT,
             dNgayLap: Sequelize.DATE,
             sGhiChu: Sequelize.STRING,
             createdAt: {

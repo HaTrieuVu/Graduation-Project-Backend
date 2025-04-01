@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
             PK_iPhieuNhapID: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
             FK_iNhanVienID: DataTypes.INTEGER,
             FK_iNhaCungCapID: DataTypes.INTEGER,
+            fTongTien: DataTypes.FLOAT,
             dNgayLap: DataTypes.DATE,
             sGhiChu: DataTypes.STRING,
         },

@@ -7,6 +7,7 @@ import brandController from "../controllers/brandController";
 import categoryController from "../controllers/categoryController";
 import orderController from "../controllers/orderController";
 import roleController from "../controllers/roleController";
+import importReceiptController from "../controllers/importReceiptController";
 
 import { checkUserJWT, checkUserPermission } from "../middleware/JWTAction";
 
@@ -68,6 +69,12 @@ let initApiRoutes = (app) => {
     router.put("/manage-product-image/update", productController.updateProductImage);
     //api xóa sản phẩm - hình ảnh
     router.delete("/manage-product-image/delete", productController.deleteProductImage);
+
+    //----------------------------------- api manage Import Receipt ------------------------
+    // api lấy ds đơn nhập hàng
+    router.get("/manage-import-receipt/get-all", importReceiptController.getAllImportReceipt);
+    // api thêm mới đơn nhập hàng
+    router.post("/manage-import-receipt/create", importReceiptController.createNewImportReceipt);
 
     //----------------------------------- api manage Supplier ------------------------
     // api lấy ds nhà cung cấp

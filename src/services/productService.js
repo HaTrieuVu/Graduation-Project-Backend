@@ -87,13 +87,21 @@ const getProductWithPagination = async (page, limit) => {
 //thêm mới sản phẩm (admin)
 const createNewProductService = async (data) => {
     try {
-        await db.Product.create({
+        const newProduct = await db.Product.create({
             FK_iDanhMucID: data.categoryId,
             FK_iNhanHangID: data.brandId,
             sTenSanPham: data.productName,
             sMoTa: data.description || "",
             sDanhGia: data.evaluate,
             sTinhTrangSanPham: data.status,
+        });
+
+        // Thêm khuyến mãi mặc định 5%
+        await db.Promotion.create({
+            FK_iSanPhamID: newProduct.PK_iSanPhamID,
+            sMoTa: "Khuyến mãi mặc định",
+            fGiaTriKhuyenMai: 5, // 5%
+            bTrangThai: true,
         });
 
         return {
