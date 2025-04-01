@@ -1,9 +1,18 @@
 import db from "../models/index";
 
-const getAllImportReceiptService = async (page, limit) => {
+const getAllImportReceiptService = async (page, limit, valueSearch) => {
     try {
         let offSet = (page - 1) * limit;
+        let whereCondition = {}; // Điều kiện lọc
+
+        if (valueSearch && valueSearch !== "all") {
+            whereCondition.dNgayLap = {
+                [db.Sequelize.Op.between]: [`${valueSearch} 00:00:00`, `${valueSearch} 23:59:59`],
+            };
+        }
+
         const { count, rows } = await db.ImportReceipt.findAndCountAll({
+            where: whereCondition, // Áp dụng điều kiện lọc
             attributes: { exclude: ["createdAt", "updatedAt"] },
             include: [
                 {
@@ -48,7 +57,7 @@ const getAllImportReceiptService = async (page, limit) => {
 
         let totalPage = Math.ceil(count / limit);
         let data = {
-            totalRows: count, //tổng có tất cả bao nhiêu bản ghi
+            totalRows: count, // tổng có tất cả bao nhiêu bản ghi
             totalPage: totalPage,
             importReceipts: rows,
         };
