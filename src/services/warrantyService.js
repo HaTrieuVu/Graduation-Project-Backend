@@ -1,18 +1,29 @@
 import db from "../models/index";
 
-const getAllWarrantyService = async (page, limit) => {
+const getAllWarrantyService = async (page, limit, keywordSearch) => {
     try {
         let offSet = (page - 1) * limit;
-        // let whereCondition = {}; // Điều kiện lọc
+        let whereCondition = {}; // nếu là all thì dk rỗng
 
-        // if (valueSearch && valueSearch !== "all") {
-        //     whereCondition.dNgayLap = {
-        //         [db.Sequelize.Op.between]: [`${valueSearch} 00:00:00`, `${valueSearch} 23:59:59`],
-        //     };
-        // }
+        if (keywordSearch && keywordSearch !== "all") {
+            if (/^\d{1,6}$/.test(keywordSearch)) {
+                // Giả sử mã phiếu bảo hành chỉ tối đa 6 chữ số
+                whereCondition.PK_iPhieuBaoHanhID = keywordSearch;
+            } else if (/^\d{4}-\d{2}-\d{2}$/.test(keywordSearch)) {
+                whereCondition.dNgayLap = {
+                    [db.Sequelize.Op.between]: [`${keywordSearch} 00:00:00`, `${keywordSearch} 23:59:59`],
+                };
+            } else {
+                whereCondition[db.Sequelize.Op.or] = [
+                    { "$order.customer.sHoTen$": { [db.Sequelize.Op.like]: `%${keywordSearch}%` } },
+                    { "$order.customer.sSoDienThoai$": { [db.Sequelize.Op.like]: `%${keywordSearch}%` } },
+                ];
+            }
+        }
 
         const { count, rows } = await db.Warranty.findAndCountAll({
             attributes: { exclude: ["createdAt", "updatedAt"] },
+            where: whereCondition,
             include: [
                 {
                     model: db.Order,
@@ -22,7 +33,7 @@ const getAllWarrantyService = async (page, limit) => {
                         {
                             model: db.Customer,
                             as: "customer",
-                            attributes: ["sHoTen", "sSoDienThoai"],
+                            attributes: ["sHoTen", "sSoDienThoai", "sDiaChi", "sEmail"],
                         },
                     ],
                 },

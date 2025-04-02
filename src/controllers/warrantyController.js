@@ -1,9 +1,9 @@
 import warrantyService from "../services/warrantyService";
 
-// hàm lấy ds nhà cung cấp (admin)
+// hàm lấy ds phiếu bảo hành (admin)
 const getAllWarranty = async (req, res) => {
     try {
-        if (!req?.query?.page || !req?.query?.limit) {
+        if (!req?.query?.page || !req?.query?.limit || !req?.query?.keywordSearch) {
             return res.status(200).json({
                 errorCode: 1,
                 errorMessage: "Thiếu tham số bắt buộc - order!",
@@ -13,8 +13,9 @@ const getAllWarranty = async (req, res) => {
         if (req?.query?.page && req?.query?.limit) {
             let page = req?.query?.page;
             let limit = req?.query?.limit;
+            let keywordSearch = req?.query?.keywordSearch;
 
-            let data = await warrantyService.getAllWarrantyService(+page, +limit);
+            let data = await warrantyService.getAllWarrantyService(+page, +limit, keywordSearch);
 
             return res.status(200).json({
                 errorCode: data.errorCode,
