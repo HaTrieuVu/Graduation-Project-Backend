@@ -42,8 +42,7 @@ const getOrdersByStatusService = async (page, limit, statusOrder) => {
             ],
             offset: offSet,
             limit: limit,
-            raw: true,
-            nest: true,
+            distinct: true,
         });
 
         let totalPage = Math.ceil(count / limit);
@@ -73,6 +72,7 @@ const updateOrderStatusService = async (data) => {
     try {
         let order = await db.Order.findOne({
             where: { PK_iDonMuaHangID: data.orderId },
+            include: [{ model: db.OrderDetail, as: "orderDetails" }],
         });
 
         if (!order) {
@@ -82,7 +82,7 @@ const updateOrderStatusService = async (data) => {
             };
         }
 
-        // Xác định nội dung thông báo dựa trên trạng thái đơn hàng
+        // Xác định nội dung thông báo
         let message = `Đơn hàng #${data.orderId} đã được xác nhận!`;
         if (data.orderStatus === "Đang giao hàng") {
             message = `Đơn hàng #${data.orderId} đang được giao!`;
@@ -92,22 +92,54 @@ const updateOrderStatusService = async (data) => {
             message = `Đơn hàng #${data.orderId} đã bị hủy!`;
         }
 
-        // Cập nhật trạng thái đơn hàng nếu có
+        // Cập nhật trạng thái đơn hàng
         await order.update({
             sTrangThaiDonHang: data.orderStatus || order.sTrangThaiDonHang,
             sTrangThaiThanhToan: data.paymentStatus || order.sTrangThaiThanhToan,
         });
 
-        // Tìm thông báo của đơn hàng
+        // Nếu đơn hàng "Giao hàng thành công", tạo phiếu bảo hành cho từng sản phẩm
+        if (data.orderStatus === "Giao hàng thành công" && order.orderDetails.length > 0) {
+            const warrantyData = order.orderDetails.map((item) => {
+                const ngayLap = new Date();
+                const ngayKetThuc = new Date(ngayLap);
+                ngayKetThuc.setFullYear(ngayLap.getFullYear() + 1); // Bảo hành 1 năm
+
+                return {
+                    FK_iDonMuaHangID: order.PK_iDonMuaHangID,
+                    FK_iPhienBanID: item.FK_iPhienBanID,
+                    dNgayLap: ngayLap,
+                    dNgayKetThucBaoHanh: ngayKetThuc,
+                    sTrangThaiXuLy: "Đang bảo hành",
+                    sMota: "Bảo hành 12 tháng",
+                };
+            });
+            await db.Warranty.bulkCreate(warrantyData);
+        }
+
+        // Nếu đơn hàng bị hủy, hoàn lại số lượng sản phẩm trong đơn
+        if (data.orderStatus === "Đã hủy" && order.orderDetails.length > 0) {
+            for (const orderDetail of order.orderDetails) {
+                let productVersion = await db.ProductVersion.findOne({
+                    where: { PK_iPhienBanID: orderDetail.FK_iPhienBanID },
+                });
+
+                if (productVersion) {
+                    await productVersion.update({
+                        iSoLuong: productVersion.iSoLuong + orderDetail.iSoLuong,
+                    });
+                }
+            }
+        }
+
+        // Tìm hoặc tạo thông báo mới
         let notification = await db.Notification.findOne({
             where: { FK_iDonMuaHangID: data.orderId },
         });
 
         if (notification) {
-            // Cập nhật nội dung thông báo
             await notification.update({ sNoiDung: message });
         } else {
-            // Tạo thông báo mới nếu không tìm thấy
             await db.Notification.create({
                 FK_iKhachHangID: order.FK_iKhachHangID,
                 FK_iDonMuaHangID: data.orderId,
@@ -115,19 +147,6 @@ const updateOrderStatusService = async (data) => {
                 dThoiGianGui: new Date(),
                 sTrangThaiDoc: false,
             });
-        }
-
-        // Nếu đơn hàng bị hủy, hoàn lại số lượng sản phẩm
-        if (data.orderStatus === "Đã hủy" && data.productVersionId && data.quantity) {
-            let productVersion = await db.ProductVersion.findOne({
-                where: { PK_iPhienBanID: data.productVersionId },
-            });
-
-            if (productVersion) {
-                await productVersion.update({
-                    iSoLuong: productVersion.iSoLuong + data.quantity,
-                });
-            }
         }
 
         return {
@@ -159,9 +178,6 @@ const handleOrderProductService = async (data) => {
                     errorMessage: `Sản phẩm ID ${item.productVersionId} không đủ hàng tồn kho.`,
                 };
             }
-            // if (!productVersion || productVersion.iSoLuong < item.quantity) {
-            //     throw new Error(`Sản phẩm ID ${item.productVersionId} không đủ hàng tồn kho.`);
-            // }
         }
 
         // Tạo đơn hàng
@@ -188,17 +204,6 @@ const handleOrderProductService = async (data) => {
             fThanhTien: item.amount,
         }));
         await db.OrderDetail.bulkCreate(orderDetailsData, { transaction });
-
-        // Tạo phiếu bảo hành
-        const warrantyData = data.orderDetails.map((item) => ({
-            FK_iDonMuaHangID: newOrder.PK_iDonMuaHangID,
-            FK_iPhienBanID: item.productVersionId,
-            dNgayLap: newOrder.dNgayLapDon,
-            dNgayKetThucBaoHanh: new Date(newOrder.dNgayLapDon.setFullYear(newOrder.dNgayLapDon.getFullYear() + 1)),
-            sTrangThaiXuLy: "Đang bảo hành",
-            sMota: "Bảo hành 12 tháng",
-        }));
-        await db.Warranty.bulkCreate(warrantyData, { transaction });
 
         // Trừ tồn kho của ProductVersion
         for (const item of data.orderDetails) {

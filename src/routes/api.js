@@ -8,6 +8,7 @@ import categoryController from "../controllers/categoryController";
 import orderController from "../controllers/orderController";
 import roleController from "../controllers/roleController";
 import importReceiptController from "../controllers/importReceiptController";
+import warrantyController from "../controllers/warrantyController";
 
 import { checkUserJWT, checkUserPermission } from "../middleware/JWTAction";
 
@@ -75,6 +76,12 @@ let initApiRoutes = (app) => {
     router.get("/manage-import-receipt/get-all", importReceiptController.getAllImportReceipt);
     // api thêm mới đơn nhập hàng
     router.post("/manage-import-receipt/create", importReceiptController.createNewImportReceipt);
+
+    //----------------------------------- api manage Warranty ------------------------
+    // api lấy ds phiếu nhập hành
+    router.get("/manage-warranty/get-all", warrantyController.getAllWarranty);
+    // api cập nhật phiếu nhập hành
+    router.put("/manage-warranty/update", warrantyController.updateWarranty);
 
     //----------------------------------- api manage Supplier ------------------------
     // api lấy ds nhà cung cấp
