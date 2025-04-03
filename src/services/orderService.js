@@ -13,12 +13,12 @@ const getOrdersByStatusService = async (page, limit, statusOrder) => {
                 {
                     model: db.Customer,
                     as: "customer",
-                    attributes: ["sHoTen", "sSoDienThoai", "sDiaChi"],
+                    attributes: ["sHoTen", "sSoDienThoai", "sDiaChi", "sEmail"],
                 },
                 {
                     model: db.OrderDetail,
                     as: "orderDetails",
-                    attributes: ["FK_iPhienBanID", "iSoLuong"],
+                    attributes: ["FK_iPhienBanID", "iSoLuong", "fGiaBan", "fThanhTien"],
                     include: [
                         {
                             model: db.ProductVersion,

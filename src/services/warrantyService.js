@@ -35,6 +35,11 @@ const getAllWarrantyService = async (page, limit, keywordSearch) => {
                             as: "customer",
                             attributes: ["sHoTen", "sSoDienThoai", "sDiaChi", "sEmail"],
                         },
+                        {
+                            model: db.OrderDetail,
+                            as: "orderDetails",
+                            attributes: ["iSoLuong", "fGiaBan", "FK_iPhienBanID"],
+                        },
                     ],
                 },
                 {
