@@ -8,30 +8,24 @@ import { createJWT } from "../middleware/JWTAction";
 
 const salt = bcrypt.genSaltSync(10);
 
-// check email tồn tại chưa
+// Kiểm tra email tồn tại trong Customer hoặc Employee
 const checkEmailExist = async (userEmail) => {
-    let user = await db.Customer.findOne({
-        where: { sEmail: userEmail },
-    });
+    const [customer, employee] = await Promise.all([
+        db.Customer.findOne({ where: { sEmail: userEmail } }),
+        db.Employee.findOne({ where: { sEmail: userEmail } }),
+    ]);
 
-    if (user) {
-        return true;
-    }
-
-    return false;
+    return !!(customer || employee); // Trả về true nếu tìm thấy email trong ít nhất một bảng
 };
 
-// check sđt tồn tại chưa
+// Kiểm tra số điện thoại tồn tại trong Customer hoặc Employee
 const checkPhoneUserExist = async (userPhone) => {
-    let user = await db.Customer.findOne({
-        where: { sSoDienThoai: userPhone },
-    });
+    const [customer, employee] = await Promise.all([
+        db.Customer.findOne({ where: { sSoDienThoai: userPhone } }),
+        db.Employee.findOne({ where: { sSoDienThoai: userPhone } }),
+    ]);
 
-    if (user) {
-        return true;
-    }
-
-    return false;
+    return !!(customer || employee); // Trả về true nếu tìm thấy số điện thoại trong ít nhất một bảng
 };
 
 //băm password
@@ -116,69 +110,83 @@ const checkPassword = async (password, hashPassword) => {
 
 const handleLoginService = async (data) => {
     try {
-        let user = await db.Customer.findOne({
-            where: {
-                [Op.or]: [
+        const { valueLogin, password } = data;
+
+        // Tìm tài khoản trong cả hai bảng song song
+        const [customer, employee] = await Promise.all([
+            db.Customer.findOne({
+                where: {
+                    [Op.or]: [{ sEmail: valueLogin }, { sSoDienThoai: valueLogin }],
+                },
+                include: [
                     {
-                        sEmail: data?.valueLogin,
+                        model: db.Role,
+                        as: "role",
+                        attributes: ["sTenQuyenHan", "sMoTa"],
                     },
                     {
-                        sSoDienThoai: data?.valueLogin,
+                        model: db.Cart,
+                        as: "carts",
+                        attributes: ["PK_iGioHangID"],
                     },
                 ],
-            },
-            include: [
-                {
-                    model: db.Role,
-                    as: "role",
-                    attributes: ["sTenQuyenHan", "sMoTa"],
+                attributes: { exclude: ["sTenDangNhap", "createdAt", "updatedAt"] },
+                raw: true,
+                nest: true,
+            }),
+            db.Employee.findOne({
+                where: {
+                    [Op.or]: [{ sEmail: valueLogin }, { sSoDienThoai: valueLogin }],
                 },
-                {
-                    model: db.Cart,
-                    as: "carts",
-                    attributes: ["PK_iGioHangID"],
-                },
-            ],
+                include: [
+                    {
+                        model: db.Role,
+                        as: "role",
+                        attributes: ["sTenQuyenHan", "sMoTa"],
+                    },
+                ],
+                attributes: { exclude: ["sTenDangNhap", "createdAt", "updatedAt"] },
+                raw: true,
+                nest: true,
+            }),
+        ]);
 
-            attributes: { exclude: ["sTenDangNhap", "createdAt", "updatedAt"] },
-            raw: true,
-            nest: true,
-        });
+        let user = customer || employee;
         if (user) {
-            let isCorrectPassword = await checkPassword(data?.password, user.sMatKhau);
-            if (isCorrectPassword === true) {
-                let userData = {};
-                delete user.sMatKhau;
+            let isCorrectPassword = await checkPassword(password, user.sMatKhau);
+            if (isCorrectPassword) {
+                delete user.sMatKhau; // Xóa mật khẩu trước khi trả về
 
                 let payload = {
-                    userId: user?.PK_iKhachHangID,
+                    userId: user?.PK_iKhachHangID || user?.PK_iNhanVienID,
                     roleId: user?.FK_iQuyenHanID,
-                    cartId: user?.carts?.PK_iGioHangID,
+                    cartId: customer ? user?.carts?.PK_iGioHangID : null, // Chỉ Customer có giỏ hàng
                     userName: user?.sHoTen,
                     phoneNumber: user?.sSoDienThoai,
+                    isEmployee: !!employee, // Đánh dấu nếu là nhân viên
                     expiresIn: process.env.JWT_EXPIRES_IN,
                 };
 
                 let token = createJWT(payload);
 
-                userData = {
-                    user,
-                    access_token: token,
-                };
                 return {
                     errorCode: 0,
                     errorMessage: "Đăng nhập thành công!",
-                    data: userData,
+                    data: {
+                        user,
+                        access_token: token,
+                    },
                 };
             }
         }
+
         return {
             errorCode: -1,
             errorMessage: "Email/Số điện thoại hoặc mật khẩu không chính xác!",
             data: "",
         };
     } catch (error) {
-        console.log("error from service", error);
+        console.error("error from service", error);
         return {
             errorCode: -1,
             errorMessage: "Đã xảy ra lỗi!",
@@ -366,7 +374,7 @@ const deleteUserService = async (id) => {
     }
 };
 
-//lấy thông tin người dùng
+//lấy thông tin người 1 dùng
 const getUserInfoService = async (id) => {
     try {
         let user = await db.Customer.findOne({
@@ -399,6 +407,152 @@ const getUserInfoService = async (id) => {
 
 //-------------------- user service end --------------------
 
+//--------------------------------------------------------------------------------------- employee
+//thêm mới nhân viên
+const createNewEmployeeService = async (data) => {
+    try {
+        // check email/phoneNumber
+        let isEmailExist = await checkEmailExist(data.email);
+        let isPhoneExist = await checkPhoneUserExist(data.phoneNumber);
+        if (isEmailExist === true) {
+            return {
+                errorCode: 1,
+                errorMessage: "Email đã tồn tại!",
+            };
+        }
+        if (isPhoneExist === true) {
+            return {
+                errorCode: 1,
+                errorMessage: "Số điện thoại đã tồn tại!",
+            };
+        }
+
+        //hash password
+        let hashPassword = hashPasswordUser(data.password);
+
+        await db.Employee.create({
+            FK_iQuyenHanID: data.role,
+            sHoTen: data.fullName,
+            sEmail: data.email,
+            sSoDienThoai: data.phoneNumber,
+            sDiaChi: data.address,
+            sMatKhau: hashPassword,
+        });
+
+        return {
+            errorCode: 0,
+            errorMessage: "Thêm mới nhân viên thành công!",
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+        };
+    }
+};
+
+// lấy nhân viên theo phân trang
+const getEmployeeWithPagination = async (page, limit) => {
+    try {
+        let offSet = (page - 1) * limit;
+        const { count, rows } = await db.Employee.findAndCountAll({
+            attributes: ["PK_iNhanVienID", "sHoTen", "sEmail", "sSoDienThoai", "sDiaChi"],
+            include: { model: db.Role, as: "role", attributes: ["PK_iQuyenHanID", "sTenQuyenHan", "sMoTa"] },
+            offset: offSet,
+            limit: limit,
+            raw: true,
+            nest: true,
+        });
+
+        let totalPage = Math.ceil(count / limit);
+        let data = {
+            totalRows: count, //tổng có tất cả bao nhiêu bản ghi
+            totalPage: totalPage,
+            employees: rows,
+        };
+
+        return {
+            errorCode: 0,
+            errorMessage: "Danh sách nhân viên!",
+            data: data,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
+//cập nhật nhân viên
+const updateEmployeeService = async (data) => {
+    try {
+        let employee = await db.Employee.findOne({
+            where: { PK_iNhanVienID: data.id },
+        });
+
+        //hash password
+        let hashPassword = hashPasswordUser(data.password);
+
+        if (employee) {
+            await employee.update({
+                FK_iQuyenHanID: data.role,
+                sHoTen: data.fullName,
+                sEmail: data.email,
+                sSoDienThoai: data.phoneNumber,
+                sDiaChi: data.address,
+                sMatKhau: hashPassword !== "" ? hashPassword : employee.sMatKhau,
+            });
+            return {
+                errorCode: 0,
+                errorMessage: "Cập nhật thông tin nhân viên thành công!",
+            };
+        } else {
+            return {
+                errorCode: -1,
+                errorMessage: "Nhân viên không tồn tại!",
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+        };
+    }
+};
+
+//xóa người dùng
+const deleteEmployeeService = async (id) => {
+    try {
+        let employee = await db.Employee.findOne({
+            where: { PK_iNhanVienID: id },
+        });
+
+        if (employee) {
+            await employee.destroy();
+            return {
+                errorCode: 0,
+                errorMessage: "Xóa nhân viên thành công!",
+            };
+        } else {
+            return {
+                errorCode: -1,
+                errorMessage: "Nhân viên không tồn tại",
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+        };
+    }
+};
+
 module.exports = {
     registerUserService,
     handleLoginService,
@@ -408,4 +562,9 @@ module.exports = {
     updateUserService,
     deleteUserService,
     getUserInfoService,
+
+    createNewEmployeeService,
+    getEmployeeWithPagination,
+    updateEmployeeService,
+    deleteEmployeeService,
 };

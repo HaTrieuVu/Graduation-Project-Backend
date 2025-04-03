@@ -27,7 +27,7 @@ let initApiRoutes = (app) => {
     //api lấy thông tin người dùng từ cookie
     router.get("/account", useController.getUserInfoAccount);
 
-    //----------------------------------- api manage user ------------------------
+    //----------------------------------- api manage user (khách hàng) ------------------------
     //api lấy ds người dùng
     router.get("/user/get-all", useController.getAllUser);
     //api thêm mới người dùng
@@ -36,6 +36,16 @@ let initApiRoutes = (app) => {
     router.put("/user/update", useController.updateUser);
     //api xóa người dùng
     router.delete("/user/delete", useController.deleteUser);
+
+    //----------------------------------- api manage employee (nv) ------------------------
+    //api lấy ds nhân viên
+    router.get("/employee/get-all", useController.getAllEmployee);
+    //api thêm mới nhân viên
+    router.post("/employee/create", useController.createNewEmployee);
+    //api cập nhật nhân viên
+    router.put("/employee/update", useController.updateEmployee);
+    //api xóa nhân viên
+    router.delete("/employee/delete", useController.deleteEmployee);
 
     //----------------------------------- api manage Product ------------------------
     // api lấy ds sản phẩm

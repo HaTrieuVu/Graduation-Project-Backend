@@ -227,6 +227,105 @@ const getUserInfo = async (req, res) => {
     }
 };
 
+//----------------------------------- Employee
+// hàm lấy ds nhân viên (admin)
+const getAllEmployee = async (req, res) => {
+    try {
+        if (req?.query?.page && req?.query?.limit) {
+            let page = req?.query?.page;
+            let limit = req?.query?.limit;
+
+            let data = await userService.getEmployeeWithPagination(+page, +limit);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm thêm mới nhân viên (admin)
+const createNewEmployee = async (req, res) => {
+    try {
+        if (
+            !req.body.email ||
+            !req.body.phoneNumber ||
+            !req.body.fullName ||
+            !req.body.password ||
+            !req.body.address ||
+            !req.body.role
+        ) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+            });
+        }
+
+        let data = await userService.createNewEmployeeService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm cập nhật nhân viên (admin)
+const updateEmployee = async (req, res) => {
+    try {
+        let data = await userService.updateEmployeeService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm xóa nhân viên (admin)
+const deleteEmployee = async (req, res) => {
+    try {
+        if (req?.body?.id) {
+            let data = await userService.deleteEmployeeService(req?.body?.id);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 module.exports = {
     handleRegister,
     handleLogin,
@@ -237,4 +336,9 @@ module.exports = {
     deleteUser,
     getUserInfoAccount,
     getUserInfo,
+
+    getAllEmployee,
+    createNewEmployee,
+    updateEmployee,
+    deleteEmployee,
 };

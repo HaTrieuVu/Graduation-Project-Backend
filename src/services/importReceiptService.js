@@ -47,7 +47,7 @@ const getAllImportReceiptService = async (page, limit, valueSearch) => {
                 {
                     model: db.Employee,
                     as: "employee",
-                    attributes: ["sHoTen"],
+                    attributes: ["sHoTen", "sSoDienThoai"],
                 },
             ],
             offset: offSet,
