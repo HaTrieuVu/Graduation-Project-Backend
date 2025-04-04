@@ -9,6 +9,7 @@ import orderController from "../controllers/orderController";
 import roleController from "../controllers/roleController";
 import importReceiptController from "../controllers/importReceiptController";
 import warrantyController from "../controllers/warrantyController";
+import promotionController from "../controllers/promotionController";
 
 import { checkUserJWT, checkUserPermission } from "../middleware/JWTAction";
 
@@ -122,6 +123,16 @@ let initApiRoutes = (app) => {
     router.put("/manage-category/update", categoryController.updateCategory);
     //api xóa danh mục sp
     router.delete("/manage-category/delete", categoryController.deleteCategory);
+
+    //----------------------------------- api manage Promotion ------------------------
+    // api lấy ds danh mục sp
+    router.get("/manage-promotion/get-all", promotionController.getAllPromotion);
+    // api thêm mới danh mục sp
+    router.post("/manage-promotion/create", promotionController.createNewPromotion);
+    // api cập nhật danh mục sp
+    router.put("/manage-promotion/update", promotionController.updatePromotion);
+    //api xóa danh mục sp
+    router.delete("/manage-promotion/delete", promotionController.deletePromotion);
 
     //----------------------------------- api manage Order ------------------------
     // api lọc ds đơn mua hàng theo trạng thái đơn hàng
