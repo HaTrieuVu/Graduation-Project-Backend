@@ -18,7 +18,7 @@ const getAllImportReceiptService = async (page, limit, valueSearch) => {
                 {
                     model: db.Supplier,
                     as: "supplier",
-                    attributes: ["sTenNhaCungCap"],
+                    attributes: ["sTenNhaCungCap", "sDiaChi", "sSoDienThoai", "sEmail"],
                 },
                 {
                     model: db.ImportReceiptDetail,

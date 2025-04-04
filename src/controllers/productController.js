@@ -157,11 +157,12 @@ const searchProduct = async (req, res) => {
 // hàm lấy ds sản phẩm - phiên bản (admin)
 const getAllProductVersion = async (req, res) => {
     try {
-        if (req?.query?.page && req?.query?.limit) {
+        if (req?.query?.page && req?.query?.limit && req?.query?.valueSearch) {
             let page = req?.query?.page;
             let limit = req?.query?.limit;
+            let valueSearch = req?.query?.valueSearch;
 
-            let data = await productService.getProductVersionWithPagination(+page, +limit);
+            let data = await productService.getProductVersionWithPagination(+page, +limit, valueSearch);
 
             return res.status(200).json({
                 errorCode: data.errorCode,
@@ -307,11 +308,12 @@ const getAllImageOfProduct = async (req, res) => {
 // hàm lấy ds sản phẩm - hình ảnh (admin)
 const getAllProductImage = async (req, res) => {
     try {
-        if (req?.query?.page && req?.query?.limit) {
+        if (req?.query?.page && req?.query?.limit && req?.query?.valueSearch) {
             let page = req?.query?.page;
             let limit = req?.query?.limit;
+            let valueSearch = req?.query?.valueSearch;
 
-            let data = await productService.getProductImageWithPagination(+page, +limit);
+            let data = await productService.getProductImageWithPagination(+page, +limit, valueSearch);
 
             return res.status(200).json({
                 errorCode: data.errorCode,

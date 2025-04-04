@@ -229,10 +229,24 @@ const getAllUserService = async () => {
 };
 
 // lấy user theo phân trang
-const getUserWithPagination = async (page, limit) => {
+const getUserWithPagination = async (page, limit, keywordSearch) => {
     try {
         let offSet = (page - 1) * limit;
+
+        // Tạo điều kiện where
+        let whereCondition = {};
+        if (keywordSearch && keywordSearch.toLowerCase() !== "all") {
+            whereCondition = {
+                [Op.or]: [
+                    { sHoTen: { [Op.like]: `%${keywordSearch}%` } },
+                    { sSoDienThoai: { [Op.like]: `%${keywordSearch}%` } },
+                    { sEmail: { [Op.like]: `%${keywordSearch}%` } },
+                ],
+            };
+        }
+
         const { count, rows } = await db.Customer.findAndCountAll({
+            where: whereCondition,
             attributes: ["PK_iKhachHangID", "sHoTen", "sEmail", "sSoDienThoai", "sDiaChi", "sAvatar"],
             include: { model: db.Role, as: "role", attributes: ["PK_iQuyenHanID", "sTenQuyenHan", "sMoTa"] },
             offset: offSet,

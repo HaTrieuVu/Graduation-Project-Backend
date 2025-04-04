@@ -80,11 +80,12 @@ const handleLogout = async (req, res) => {
 // hàm lấy ds người dùng (admin)
 const getAllUser = async (req, res) => {
     try {
-        if (req?.query?.page && req?.query?.limit) {
+        if (req?.query?.page && req?.query?.limit && req?.query?.keywordSearch) {
             let page = req?.query?.page;
             let limit = req?.query?.limit;
+            let keywordSearch = req?.query?.keywordSearch;
 
-            let data = await userService.getUserWithPagination(+page, +limit);
+            let data = await userService.getUserWithPagination(+page, +limit, keywordSearch);
 
             return res.status(200).json({
                 errorCode: data.errorCode,

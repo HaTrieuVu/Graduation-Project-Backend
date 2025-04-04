@@ -271,10 +271,12 @@ const getAllProductVersionService = async () => {
 };
 
 // lấy sản phẩm - phiên bản theo phân trang (admin)
-const getProductVersionWithPagination = async (page, limit) => {
+const getProductVersionWithPagination = async (page, limit, valueSearch) => {
     try {
         let offSet = (page - 1) * limit;
+        const whereCondition = valueSearch === "all" ? {} : { FK_iSanPhamID: valueSearch };
         const { count, rows } = await db.ProductVersion.findAndCountAll({
+            where: whereCondition,
             include: [
                 {
                     model: db.Product,
@@ -476,10 +478,12 @@ const getAllProductImageService = async () => {
 };
 
 // lấy sản phẩm - hình ảnh theo phân trang (admin)
-const getProductImageWithPagination = async (page, limit) => {
+const getProductImageWithPagination = async (page, limit, valueSearch) => {
     try {
         let offSet = (page - 1) * limit;
+        const whereCondition = valueSearch === "all" ? {} : { FK_iSanPhamID: valueSearch };
         const { count, rows } = await db.ProductImage.findAndCountAll({
+            where: whereCondition,
             include: [
                 {
                     model: db.Product,
