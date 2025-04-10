@@ -57,14 +57,25 @@ let initWebRoutes = (app) => {
     router.delete("/notification/delete-notify", notificationController.deleteNotification);
 
     //----------------------------------- api payment------------------------------
+    //-----------ZaloPay
     // hàm tạo ra dường link để thanh toán với zalopay
     router.post("/payment-zalo-pay/order", paymentController.paymentOrderZalopay);
 
     // hàm khi thanh toán thành công
-    router.post("/payment-zalo-pay/callback-success", paymentController.paymentCallBackSuccess);
+    router.post("/payment-zalo-pay/callback-success", paymentController.paymentZaloPayCallBackSuccess);
 
     // hàm kiểm trạng thái thành toán của đơn hàng
-    router.post("/payment-zalo-pay/check-status", paymentController.paymentCheckStatus);
+    router.post("/payment-zalo-pay/check-status", paymentController.paymentZaloPayCheckStatus);
+
+    //-----------MoMo
+    // hàm tạo ra dường link để thanh toán với momo
+    router.post("/payment-momo-pay/order", paymentController.paymentOrderMoMo);
+
+    // hàm khi thanh toán thành công
+    router.post("/payment-momo-pay/callback-success", paymentController.paymentMoMoCallBackSuccess);
+
+    // hàm kiểm trạng thái thành toán của đơn hàng
+    router.post("/payment-momo-pay/check-status", paymentController.paymentMoMoCheckStatus);
 
     return app.use("/api/v1", router);
 };
