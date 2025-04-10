@@ -621,9 +621,23 @@ const deleteProductImageService = async (id) => {
 //----------------------------------------------------------------- Client
 
 // lấy ds sản phẩm theo phân trang để hiện thị phía client
-const fetchAllProductWithPagination = async (page, limit) => {
+const fetchAllProductWithPagination = async (page, limit, valueFilter) => {
     try {
         let offSet = (page - 1) * limit;
+
+        let orderOption = [];
+
+        if (valueFilter === "ASC") {
+            // Giá tăng dần theo ProductVersion
+            orderOption.push([{ model: db.ProductVersion, as: "versions" }, "fGiaBan", "ASC"]);
+        } else if (valueFilter === "DESC") {
+            // Giá giảm dần theo ProductVersion
+            orderOption.push([{ model: db.ProductVersion, as: "versions" }, "fGiaBan", "DESC"]);
+        } else if (valueFilter === "RERCENT") {
+            // Giảm giá khuyến mãi giảm dần
+            orderOption.push([{ model: db.Promotion, as: "promotion" }, "fGiaTriKhuyenMai", "DESC"]);
+        }
+
         const { count, rows } = await db.Product.findAndCountAll({
             attributes: { exclude: ["createdAt", "updatedAt", "sMoTa"] },
             include: [
@@ -656,6 +670,7 @@ const fetchAllProductWithPagination = async (page, limit) => {
             offset: offSet,
             limit: limit,
             distinct: true,
+            order: orderOption,
         });
 
         let totalPage = Math.ceil(count / limit);

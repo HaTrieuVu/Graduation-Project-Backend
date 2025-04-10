@@ -421,11 +421,12 @@ const deleteProductImage = async (req, res) => {
 // hàm lấy ds sản phẩm để hiện thị phía client
 const fetchAllProduct = async (req, res) => {
     try {
-        if (req?.query?.page && req?.query?.limit) {
+        if (req?.query?.page && req?.query?.limit && req?.query?.valueFilter) {
             let page = req?.query?.page;
             let limit = req?.query?.limit;
+            let valueFilter = req?.query?.valueFilter;
 
-            let data = await productService.fetchAllProductWithPagination(+page, +limit);
+            let data = await productService.fetchAllProductWithPagination(+page, +limit, valueFilter);
 
             return res.status(200).json({
                 errorCode: data.errorCode,

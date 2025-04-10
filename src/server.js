@@ -7,7 +7,6 @@ import initApiRoutes from "./routes/api";
 import initWebRoutes from "./routes/web";
 import connectDB from "./config/connectDB";
 import cookieParser from "cookie-parser";
-// import cors from "cors";
 
 let app = express();
 

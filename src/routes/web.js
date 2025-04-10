@@ -6,6 +6,7 @@ import brandController from "../controllers/brandController";
 import cartController from "../controllers/cartController";
 import orderController from "../controllers/orderController";
 import notificationController from "../controllers/notificationController";
+import paymentController from "../controllers/paymentController";
 
 let router = express.Router();
 
@@ -54,6 +55,16 @@ let initWebRoutes = (app) => {
 
     // api xóa thông báo của người dùng
     router.delete("/notification/delete-notify", notificationController.deleteNotification);
+
+    //----------------------------------- api payment------------------------------
+    // hàm tạo ra dường link để thanh toán với zalopay
+    router.post("/payment-zalo-pay/order", paymentController.paymentOrderZalopay);
+
+    // hàm khi thanh toán thành công
+    router.post("/payment-zalo-pay/callback-success", paymentController.paymentCallBackSuccess);
+
+    // hàm kiểm trạng thái thành toán của đơn hàng
+    router.post("/payment-zalo-pay/check-status", paymentController.paymentCheckStatus);
 
     return app.use("/api/v1", router);
 };

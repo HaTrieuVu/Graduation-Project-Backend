@@ -32,6 +32,9 @@ const authenticatedPaths = [
     "/order/order-product",
     "/notification/get-info",
     "/notification/delete-notify",
+    "/payment-zalo-pay/order",
+    "/payment-zalo-pay/callback-success",
+    "/payment-zalo-pay/check-status",
 ];
 
 module.exports = {
