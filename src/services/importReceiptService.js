@@ -92,7 +92,7 @@ const createNewImportReceiptService = async (data) => {
         const supplier = await db.Supplier.findByPk(supplierId);
         if (!supplier) return { errorCode: 1, errorMessage: "Nhà cung cấp không tồn tại!" };
 
-        const user = await db.Customer.findByPk(userId);
+        const user = await db.Employee.findByPk(userId);
         if (!user) return { errorCode: 1, errorMessage: "Nhân viên không tồn tại!" };
 
         let totalAmount = 0;
@@ -129,6 +129,7 @@ const createNewImportReceiptService = async (data) => {
                 // Nếu sản phẩm chưa tồn tại, tạo mới
                 const newProduct = await db.Product.create({
                     sTenSanPham: productName,
+                    sTinhTrangSanPham: "Chờ bán",
                 });
 
                 // Thêm khuyến mãi mặc định 5%

@@ -85,6 +85,8 @@ const checkUserPermission = (req, res, next) => {
     if (req.path === "/account") {
         next();
     }
+
+    // các đường dẫn k cần đăng nhập
     if (nonSecurePaths.some((path) => req.path.startsWith(path))) {
         return next();
     }
@@ -93,7 +95,7 @@ const checkUserPermission = (req, res, next) => {
         let roleId = req.user.roleId;
         let currentUrl = req.path;
 
-        //Nếu path nằm trong authenticatedPaths, cho phép truy cập luôn
+        //Nếu path nằm trong authenticatedPaths, cho phép truy cập luôn (đã đăng nhập)
         if (authenticatedPaths.some((path) => req.path.startsWith(path))) {
             return next();
         }

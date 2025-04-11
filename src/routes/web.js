@@ -27,7 +27,7 @@ let initWebRoutes = (app) => {
 
     //------------------------------- api Brand -------------------------------
     //api lấy ds nhãn hàng
-    router.get("/brand/get-all", brandController.getAllProductByBrand);
+    // router.get("/brand/get-all", brandController.getAllProductByBrand);
 
     //api lấy ds sản phẩm theo nhãn hàng
     router.get("/product/brand/:id", brandController.getAllProductByBrand);

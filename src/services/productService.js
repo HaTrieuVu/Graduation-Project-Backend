@@ -1,5 +1,5 @@
 import db from "../models/index";
-const { Op } = require("sequelize");
+const { Op, fn, col, where } = require("sequelize");
 
 //------------------------------------------------------------ Service Product
 
@@ -87,6 +87,23 @@ const getProductWithPagination = async (page, limit) => {
 //thêm mới sản phẩm (admin)
 const createNewProductService = async (data) => {
     try {
+        // Kiểm tra tên sản phẩm đã tồn tại chưa (không phân biệt hoa thường)
+        const existingProduct = await db.Product.findOne({
+            where: db.sequelize.where(
+                db.sequelize.fn("LOWER", db.sequelize.col("sTenSanPham")),
+                data.productName.toLowerCase()
+            ),
+        });
+
+        if (existingProduct) {
+            return {
+                errorCode: 2,
+                errorMessage: "Sản phẩm đã tồn tại. Hãy kiểm tra lại!",
+                data: [],
+            };
+        }
+
+        // Thêm mới sản phẩm nếu chưa tồn tại
         const newProduct = await db.Product.create({
             FK_iDanhMucID: data.categoryId,
             FK_iNhanHangID: data.brandId,
@@ -318,6 +335,23 @@ const getProductVersionWithPagination = async (page, limit, valueSearch) => {
 //thêm mới sản phẩm - phiên bản (admin)
 const createNewProductVersionService = async (data) => {
     try {
+        // Kiểm tra phiên bản đã tồn tại chưa
+        const existingVersion = await db.ProductVersion.findOne({
+            where: {
+                FK_iSanPhamID: data.productId,
+                FK_iHinhAnhID: data.productImageId,
+                sDungLuong: data.capacity,
+            },
+        });
+
+        if (existingVersion) {
+            return {
+                errorCode: 2,
+                errorMessage: "Phiên bản đã tồn tại. Hãy kiểm tra lại!",
+            };
+        }
+
+        // Nếu chưa tồn tại thì tạo mới
         await db.ProductVersion.create({
             FK_iSanPhamID: data.productId,
             FK_iHinhAnhID: data.productImageId,
@@ -329,15 +363,13 @@ const createNewProductVersionService = async (data) => {
 
         return {
             errorCode: 0,
-            errorMessage: "Thêm mới sản phẩm - phiên bản thành công!",
-            data: [],
+            errorMessage: "Thêm mới phiên bản sản phẩm thành công!",
         };
     } catch (error) {
         console.log(error);
         return {
             errorCode: 1,
             errorMessage: "Đã xảy ra lỗi - service!",
-            data: [],
         };
     }
 };
@@ -495,6 +527,7 @@ const getProductImageWithPagination = async (page, limit, valueSearch) => {
             limit: limit,
             raw: true,
             nest: true,
+            distinct: true,
         });
 
         let totalPage = Math.ceil(count / limit);
@@ -532,6 +565,24 @@ const getProductImageWithPagination = async (page, limit, valueSearch) => {
 //thêm mới sản phẩm - hình ảnh (admin)
 const createNewProductImageService = async (data) => {
     try {
+        const moTaUpper = (data.description || "").toUpperCase();
+
+        // Kiểm tra hình ảnh đã tồn tại với sản phẩm và mô tả (dạng chữ hoa)
+        const existingImage = await db.ProductImage.findOne({
+            where: {
+                FK_iSanPhamID: data.productId,
+                [Op.and]: [where(fn("UPPER", col("sMoTa")), moTaUpper)],
+            },
+        });
+
+        if (existingImage) {
+            return {
+                errorCode: 2,
+                errorMessage: "Hình ảnh với mô tả này đã tồn tại cho sản phẩm!",
+            };
+        }
+
+        // Nếu chưa tồn tại thì tạo mới
         await db.ProductImage.create({
             FK_iSanPhamID: data.productId,
             sUrl: data.imgSource,
@@ -540,15 +591,13 @@ const createNewProductImageService = async (data) => {
 
         return {
             errorCode: 0,
-            errorMessage: "Thêm mới sản phẩm - hình ảnh thành công!",
-            data: [],
+            errorMessage: "Thêm mới hình ảnh sản phẩm thành công!",
         };
     } catch (error) {
         console.log(error);
         return {
             errorCode: 1,
             errorMessage: "Đã xảy ra lỗi - service!",
-            data: [],
         };
     }
 };
@@ -639,6 +688,10 @@ const fetchAllProductWithPagination = async (page, limit, valueFilter) => {
         }
 
         const { count, rows } = await db.Product.findAndCountAll({
+            where: {
+                sTinhTrangSanPham: "Đang bán",
+            },
+            required: false,
             attributes: { exclude: ["createdAt", "updatedAt", "sMoTa"] },
             include: [
                 {
@@ -715,6 +768,12 @@ const getInfoProductSingleService = async (id) => {
                 {
                     model: db.ProductVersion,
                     as: "versions",
+                    where: {
+                        iSoLuong: {
+                            [db.Sequelize.Op.gt]: 0, // iSoLuong > 0
+                        },
+                    },
+                    required: false, // để không làm mất bản ghi Product nếu không có version thỏa mãn
                     attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
                     include: [
                         {

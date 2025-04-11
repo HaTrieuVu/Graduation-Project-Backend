@@ -187,6 +187,10 @@ const getAllProductByBrandService = async (id) => {
             include: {
                 model: db.Product,
                 as: "products",
+                where: {
+                    sTinhTrangSanPham: "Đang bán",
+                },
+                required: false, // Tránh mất brand nếu không có sản phẩm thỏa mãn điều kiện
                 attributes: { exclude: ["createdAt", "updatedAt", "sMoTa"] },
                 include: [
                     {

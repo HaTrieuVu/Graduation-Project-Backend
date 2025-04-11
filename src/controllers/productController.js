@@ -202,7 +202,6 @@ const createNewProductVersion = async (req, res) => {
             return res.status(200).json({
                 errorCode: 1,
                 errorMessage: "Thiếu tham số bắt buộc!",
-                data: "",
             });
         }
 
@@ -211,14 +210,12 @@ const createNewProductVersion = async (req, res) => {
         return res.status(200).json({
             errorCode: data.errorCode,
             errorMessage: data.errorMessage,
-            data: data.data,
         });
     } catch (error) {
         console.log(">>> ERR", error);
         return res.status(500).json({
             errorCode: -1,
             errorMessage: "Error From Server",
-            data: "",
         });
     }
 };
@@ -346,7 +343,6 @@ const createNewProductImage = async (req, res) => {
             return res.status(200).json({
                 errorCode: 1,
                 errorMessage: "Thiếu tham số bắt buộc!",
-                data: "",
             });
         }
 
@@ -355,14 +351,12 @@ const createNewProductImage = async (req, res) => {
         return res.status(200).json({
             errorCode: data.errorCode,
             errorMessage: data.errorMessage,
-            data: data.data,
         });
     } catch (error) {
         console.log(">>> ERR", error);
         return res.status(500).json({
             errorCode: -1,
             errorMessage: "Error From Server",
-            data: "",
         });
     }
 };

@@ -6,6 +6,18 @@ const rolesEmployee = [
     {
         url: "/manage-supplier/get-all",
     },
+    {
+        url: "/manage-order/get-orders-by-status",
+    },
+    {
+        url: "/manage-order/update",
+    },
+    {
+        url: "/manage-import-receipt/get-all",
+    },
+    {
+        url: "/manage-import-receipt/create",
+    },
 ];
 
 //các path mà người dùng (kh) có quyền
