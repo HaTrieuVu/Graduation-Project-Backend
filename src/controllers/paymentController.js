@@ -1,8 +1,9 @@
 // payment
-const axios = require("axios").default;
+const axios = require("axios");
 const CryptoJS = require("crypto-js");
 const moment = require("moment");
 const qs = require("qs");
+const crypto = require("crypto");
 
 // APP INFO
 const config = {
@@ -151,7 +152,7 @@ const paymentOrderMoMo = async (req, res) => {
     var redirectUrl = "https://www.momo.vn/";
     var ipnUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
     var requestType = "payWithMethod";
-    var amount = "50000";
+    var amount = totalPrice;
     var orderId = partnerCode + new Date().getTime();
     var requestId = orderId;
     var extraData = "";
@@ -183,7 +184,7 @@ const paymentOrderMoMo = async (req, res) => {
         "&requestType=" +
         requestType;
     //signature
-    const crypto = require("crypto");
+
     var signature = crypto.createHmac("sha256", secretKey).update(rawSignature).digest("hex");
 
     //json object send to MoMo endpoint
@@ -249,7 +250,6 @@ const paymentMoMoCheckStatus = async (req, res) => {
         let rawSignature = `accessKey=${accessKey}&orderId=${orderId}&partnerCode=MOMO&requestId=${orderId}`;
 
         //signature
-        const crypto = require("crypto");
         let signature = crypto.createHmac("sha256", secretKey).update(rawSignature).digest("hex");
 
         const requestBody = JSON.stringify({
@@ -290,6 +290,158 @@ const paymentMoMoCheckStatus = async (req, res) => {
     }
 };
 
+//----------------------------------VNPay
+function sortObject(obj) {
+    let sorted = {};
+    let str = [];
+    let key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            str.push(encodeURIComponent(key));
+        }
+    }
+    str.sort();
+    for (key = 0; key < str.length; key++) {
+        sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+    }
+    return sorted;
+}
+
+// hàm tạo ra dường link để thanh toán với VNPay
+const paymentOrderVnPay = (req, res, next) => {
+    const date = new Date();
+
+    const ipAddr =
+        req.headers["x-forwarded-for"] ||
+        req.connection?.remoteAddress ||
+        req.socket?.remoteAddress ||
+        req.connection?.socket?.remoteAddress ||
+        "127.0.0.1";
+
+    const tmnCode = "YFBF5RLW";
+    const secretKey = "E5TFV8DFO6RQCK7IAC0PV9OUNIOKJEBQ";
+    const vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+    const returnUrl = "https://vnpay.vn/";
+
+    const createDate = moment(date).format("YYYYMMDDHHmmss"); // ex: 20250410173500
+    const orderId = moment(date).format("DDHHmmss"); // ex: 173500
+
+    const amount = req.body.amount;
+    const bankCode = req.body.bankCode;
+    const orderInfo = req.body.orderDescription;
+    const orderType = req.body.orderType;
+    const locale = req.body.language || "vn";
+
+    const currCode = "VND";
+    let vnp_Params = {
+        vnp_Version: "2.1.0",
+        vnp_Command: "pay",
+        vnp_TmnCode: tmnCode,
+        vnp_Locale: locale,
+        vnp_CurrCode: currCode,
+        vnp_TxnRef: orderId,
+        vnp_OrderInfo: orderInfo,
+        vnp_OrderType: orderType,
+        vnp_Amount: amount * 100,
+        vnp_ReturnUrl: returnUrl,
+        vnp_IpAddr: ipAddr,
+        vnp_CreateDate: createDate,
+    };
+
+    // 🔐 Bước ký dữ liệu
+    vnp_Params = sortObject(vnp_Params);
+    const signData = qs.stringify(vnp_Params, { encode: false });
+    const hmac = crypto.createHmac("sha512", secretKey);
+    const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+
+    vnp_Params["vnp_SecureHash"] = signed;
+
+    // 🔗 Tạo URL thanh toán
+    const paymentUrl = vnpUrl + "?" + qs.stringify(vnp_Params, { encode: false });
+
+    return res.status(200).json({
+        result_code: 0,
+        message: "Tạo URL thanh toán VNPAY thành công!",
+        paymentUrl,
+        orderId,
+        createDate,
+    });
+};
+
+const paymentVnPayCheckStatus = async (req, res) => {
+    console.log(req.body.orderId);
+    console.log(req.body.transDate);
+    try {
+        const date = new Date();
+
+        const vnp_TmnCode = "YFBF5RLW";
+        const secretKey = "E5TFV8DFO6RQCK7IAC0PV9OUNIOKJEBQ";
+        const vnp_Api = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+
+        const vnp_TxnRef = req.body.orderId;
+        const vnp_TransactionDate = req.body.transDate;
+
+        const vnp_RequestId = moment(date).format("HHmmss");
+        const vnp_Version = "2.1.0";
+        const vnp_Command = "querydr";
+        const vnp_OrderInfo = "Truy van GD ma:" + vnp_TxnRef;
+
+        const vnp_IpAddr =
+            req.headers["x-forwarded-for"] ||
+            req.connection?.remoteAddress ||
+            req.socket?.remoteAddress ||
+            req.connection?.socket?.remoteAddress ||
+            "127.0.0.1";
+
+        const vnp_CreateDate = moment(date).format("YYYYMMDDHHmmss");
+
+        const dataToHash = [
+            vnp_RequestId,
+            vnp_Version,
+            vnp_Command,
+            vnp_TmnCode,
+            vnp_TxnRef,
+            vnp_TransactionDate,
+            vnp_CreateDate,
+            vnp_IpAddr,
+            vnp_OrderInfo,
+        ].join("|");
+
+        const hmac = crypto.createHmac("sha512", secretKey);
+        const vnp_SecureHash = hmac.update(Buffer.from(dataToHash, "utf-8")).digest("hex");
+
+        const requestData = {
+            vnp_RequestId,
+            vnp_Version,
+            vnp_Command,
+            vnp_TmnCode,
+            vnp_TxnRef,
+            vnp_OrderInfo,
+            vnp_TransactionDate,
+            vnp_CreateDate,
+            vnp_IpAddr,
+            vnp_SecureHash,
+        };
+
+        const response = await axios.post(vnp_Api, requestData, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: response.data,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Lỗi khi gửi yêu cầu đến VNPAY",
+            error: error.response?.data || error.message,
+        });
+    }
+};
+
 module.exports = {
     paymentOrderZalopay,
     paymentZaloPayCallBackSuccess,
@@ -298,4 +450,7 @@ module.exports = {
     paymentOrderMoMo,
     paymentMoMoCallBackSuccess,
     paymentMoMoCheckStatus,
+
+    paymentOrderVnPay,
+    paymentVnPayCheckStatus,
 };

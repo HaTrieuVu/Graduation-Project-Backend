@@ -69,13 +69,20 @@ let initWebRoutes = (app) => {
 
     //-----------MoMo
     // hàm tạo ra dường link để thanh toán với momo
-    router.post("/payment-momo-pay/order", paymentController.paymentOrderMoMo);
+    router.post("/payment-momo/order", paymentController.paymentOrderMoMo);
 
     // hàm khi thanh toán thành công
-    router.post("/payment-momo-pay/callback-success", paymentController.paymentMoMoCallBackSuccess);
+    router.post("/payment-momo/callback-success", paymentController.paymentMoMoCallBackSuccess);
 
     // hàm kiểm trạng thái thành toán của đơn hàng
-    router.post("/payment-momo-pay/check-status", paymentController.paymentMoMoCheckStatus);
+    router.post("/payment-momo/check-status", paymentController.paymentMoMoCheckStatus);
+
+    //-----------VnPay
+    // hàm tạo ra dường link để thanh toán với VnPay
+    router.post("/payment-vnpay/order", paymentController.paymentOrderVnPay);
+
+    // hàm kiểm trạng thái thành toán của đơn hàng
+    router.post("/payment-vnpay/check-status", paymentController.paymentVnPayCheckStatus);
 
     return app.use("/api/v1", router);
 };

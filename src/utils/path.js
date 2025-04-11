@@ -37,9 +37,12 @@ const authenticatedPaths = [
     "/payment-zalo-pay/callback-success",
     "/payment-zalo-pay/check-status",
 
-    "/payment-momo-pay/order",
-    "/payment-momo-pay/callback-success",
-    "/payment-momo-pay/check-status",
+    "/payment-momo/order",
+    "/payment-momo/callback-success",
+    "/payment-momo/check-status",
+
+    "/payment-vnpay/order",
+    "/payment-vnpay/check-status",
 ];
 
 module.exports = {
