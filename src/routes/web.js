@@ -49,6 +49,9 @@ let initWebRoutes = (app) => {
     // api đặt hàng
     router.post("/order/order-product", orderController.handleOrderProduct);
 
+    // api lấy tất cả thông tin giỏ hàng của 1 người dùng
+    router.get("/order/get-all-purchase", orderController.getAllPurchaseByUser);
+
     //---------------------------------- api Notification -----------------------------
     // api lấy thông báo của người dùng (tb của đơn đặt hàng)
     router.get("/notification/get-info", notificationController.getNotification);

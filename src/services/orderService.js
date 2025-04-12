@@ -250,8 +250,93 @@ const handleOrderProductService = async (data) => {
     }
 };
 
+const getAllPurchaseByUserService = async (userId, type) => {
+    try {
+        let whereCondition = { FK_iKhachHangID: userId };
+
+        // Bổ sung điều kiện theo type nếu khác 'all'
+        if (type && type !== "all") {
+            switch (type) {
+                case "1":
+                    whereCondition.sTrangThaiDonHang = "Chờ xác nhận";
+                    break;
+                case "2":
+                    whereCondition.sTrangThaiDonHang = "Đang giao hàng";
+                    break;
+                case "3":
+                    whereCondition.sTrangThaiDonHang = "Giao hàng thành công";
+                    break;
+                case "4":
+                    whereCondition.sTrangThaiDonHang = "Đã hủy";
+                    break;
+                default:
+                    // Trường hợp type không hợp lệ
+                    return {
+                        errorCode: 1,
+                        errorMessage: "Loại đơn hàng không hợp lệ!",
+                        data: [],
+                    };
+            }
+        }
+
+        // Lấy danh sách đơn hàng theo điều kiện đã xử lý ở trên
+        let orderList = await db.Order.findAll({
+            attributes: { exclude: ["createdAt", "fPhiShip", "FK_iNhanVienID"] },
+            where: whereCondition,
+            include: [
+                {
+                    model: db.OrderDetail,
+                    as: "orderDetails",
+                    attributes: ["FK_iPhienBanID", "iSoLuong", "fGiaBan", "fThanhTien"],
+                    include: [
+                        {
+                            model: db.ProductVersion,
+                            as: "productVersion",
+                            attributes: ["sDungLuong", "fGiaBan"],
+                            include: [
+                                {
+                                    model: db.Product,
+                                    as: "productData",
+                                    attributes: ["sTenSanPham"],
+                                },
+                                {
+                                    model: db.ProductImage,
+                                    as: "productImages",
+                                    attributes: ["sMoTa", "sUrl"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (orderList && orderList.length > 0) {
+            return {
+                errorCode: 0,
+                errorMessage: "Danh sách đơn mua hàng của user!",
+                data: orderList,
+            };
+        } else {
+            return {
+                errorCode: 0,
+                errorMessage: "Không có đơn mua hàng nào phù hợp!",
+                data: [],
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
 module.exports = {
     getOrdersByStatusService,
     updateOrderStatusService,
     handleOrderProductService,
+    getAllPurchaseByUserService,
 };

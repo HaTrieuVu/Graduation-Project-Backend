@@ -91,8 +91,34 @@ const handleOrderProduct = async (req, res) => {
     }
 };
 
+// hàm lấy thông tin các đơn đặt hàng của người dùng
+const getAllPurchaseByUser = async (req, res) => {
+    try {
+        if (!req?.query?.userId || !req?.query?.type) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc - order!",
+            });
+        }
+
+        if (req?.query?.userId && req?.query?.type) {
+            let userId = req?.query?.userId;
+            let type = req?.query?.type;
+
+            let data = await orderService.getAllPurchaseByUserService(userId, type);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {}
+};
+
 module.exports = {
     getOrdersByStatus,
     updateOrderStatus,
     handleOrderProduct,
+    getAllPurchaseByUser,
 };
