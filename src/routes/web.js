@@ -15,7 +15,10 @@ let initWebRoutes = (app) => {
     //api lấy thông tin của 1 người dùng
     router.get("/user/get-info", userController.getUserInfo);
 
-    //----------------------------------- api Product ------------------------
+    //api cập nhật thông tin người dùng
+    router.put("/user/update-profile", userController.updateProfileUser);
+
+    //----------------------------------------------------------------------------------------- api Product ------------------------
     // api lấy ds sản phẩm
     router.get("/products/get-all", productController.fetchAllProduct);
 
@@ -25,14 +28,14 @@ let initWebRoutes = (app) => {
     //api search sản phẩm theo keyword
     router.get("/products/search", productController.searchAllProductByKeyword);
 
-    //------------------------------- api Brand -------------------------------
+    //----------------------------------------------------------------------------------------- api Brand -------------------------------
     //api lấy ds nhãn hàng
     // router.get("/brand/get-all", brandController.getAllProductByBrand);
 
     //api lấy ds sản phẩm theo nhãn hàng
     router.get("/product/brand/:id", brandController.getAllProductByBrand);
 
-    //---------------------------------- api Cart -----------------------------
+    //---------------------------------------------------------------------------------------- api Cart -----------------------------
     //api thêm sản phẩm vào giỏ hàng
     router.post("/cart/add-to-cart", cartController.handleAddProductToCart);
 
@@ -45,21 +48,21 @@ let initWebRoutes = (app) => {
     // api xóa sản phẩm khỏi giỏ hàng
     router.post("/cart/remove-produt-from-cart", cartController.handleRemoveProductFromCart);
 
-    //---------------------------------- api Order -----------------------------
+    //------------------------------------------------------------------------------------------ api Order -----------------------------
     // api đặt hàng
     router.post("/order/order-product", orderController.handleOrderProduct);
 
     // api lấy tất cả thông tin giỏ hàng của 1 người dùng
     router.get("/order/get-all-purchase", orderController.getAllPurchaseByUser);
 
-    //---------------------------------- api Notification -----------------------------
+    //----------------------------------------------------------------------------------------- api Notification -----------------------------
     // api lấy thông báo của người dùng (tb của đơn đặt hàng)
     router.get("/notification/get-info", notificationController.getNotification);
 
     // api xóa thông báo của người dùng
     router.delete("/notification/delete-notify", notificationController.deleteNotification);
 
-    //----------------------------------- api payment------------------------------
+    //----------------------------------------------------------------------------------------- api payment------------------------------
     //-----------ZaloPay
     // hàm tạo ra dường link để thanh toán với zalopay
     router.post("/payment-zalo-pay/order", paymentController.paymentOrderZalopay);

@@ -9,23 +9,33 @@ import { createJWT } from "../middleware/JWTAction";
 const salt = bcrypt.genSaltSync(10);
 
 // Kiểm tra email tồn tại trong Customer hoặc Employee
-const checkEmailExist = async (userEmail) => {
+const checkEmailExist = async (userEmail, userIdToExclude = null) => {
     const [customer, employee] = await Promise.all([
-        db.Customer.findOne({ where: { sEmail: userEmail } }),
+        db.Customer.findOne({
+            where: {
+                sEmail: userEmail,
+                ...(userIdToExclude && { PK_iKhachHangID: { [db.Sequelize.Op.ne]: userIdToExclude } }),
+            },
+        }),
         db.Employee.findOne({ where: { sEmail: userEmail } }),
     ]);
 
-    return !!(customer || employee); // Trả về true nếu tìm thấy email trong ít nhất một bảng
+    return !!(customer || employee); // Trả về true nếu tồn tại email ở người khác
 };
 
 // Kiểm tra số điện thoại tồn tại trong Customer hoặc Employee
-const checkPhoneUserExist = async (userPhone) => {
+const checkPhoneUserExist = async (userPhone, userIdToExclude = null) => {
     const [customer, employee] = await Promise.all([
-        db.Customer.findOne({ where: { sSoDienThoai: userPhone } }),
+        db.Customer.findOne({
+            where: {
+                sSoDienThoai: userPhone,
+                ...(userIdToExclude && { PK_iKhachHangID: { [db.Sequelize.Op.ne]: userIdToExclude } }),
+            },
+        }),
         db.Employee.findOne({ where: { sSoDienThoai: userPhone } }),
     ]);
 
-    return !!(customer || employee); // Trả về true nếu tìm thấy số điện thoại trong ít nhất một bảng
+    return !!(customer || employee); // Trả về true nếu tồn tại SĐT ở người khác
 };
 
 //băm password
@@ -329,24 +339,26 @@ const updateUserService = async (data) => {
         let user = await db.Customer.findOne({
             where: { PK_iKhachHangID: data.id },
         });
-        if (user) {
-            await user.update({
-                sHoTen: data.fullName,
-                sDiaChi: data.address,
-                FK_iQuyenHanID: data.role,
-            });
-            return {
-                errorCode: 0,
-                errorMessage: "Cập nhật thông tin người dùng thành công!",
-                data: [],
-            };
-        } else {
+
+        if (!user) {
             return {
                 errorCode: -1,
                 errorMessage: "Người dùng không tồn tại!",
                 data: [],
             };
         }
+
+        await user.update({
+            sHoTen: data.fullName,
+            sDiaChi: data.address,
+            FK_iQuyenHanID: data.role,
+        });
+
+        return {
+            errorCode: 0,
+            errorMessage: "Cập nhật thông tin người dùng thành công!",
+            data: [],
+        };
     } catch (error) {
         console.log(error);
         return {
@@ -393,10 +405,14 @@ const getUserInfoService = async (id) => {
     try {
         let user = await db.Customer.findOne({
             where: { PK_iKhachHangID: id },
-            attributes: ["PK_iKhachHangID", "sHoTen", "sEmail", "sSoDienThoai", "sDiaChi"],
+            attributes: ["PK_iKhachHangID", "sHoTen", "sEmail", "sSoDienThoai", "sDiaChi", "sAvatar"],
         });
 
         if (user) {
+            if (user.sAvatar && Buffer.isBuffer(user.sAvatar)) {
+                user.sAvatar = new Buffer(user.sAvatar, "base64").toString("binary");
+            }
+
             return {
                 errorCode: 0,
                 errorMessage: "Thông tin người dùng!",
@@ -418,8 +434,6 @@ const getUserInfoService = async (id) => {
         };
     }
 };
-
-//-------------------- user service end --------------------
 
 //--------------------------------------------------------------------------------------- employee
 //thêm mới nhân viên
@@ -508,28 +522,51 @@ const updateEmployeeService = async (data) => {
             where: { PK_iNhanVienID: data.id },
         });
 
-        //hash password
-        let hashPassword = hashPasswordUser(data.password);
-
-        if (employee) {
-            await employee.update({
-                FK_iQuyenHanID: data.role,
-                sHoTen: data.fullName,
-                sEmail: data.email,
-                sSoDienThoai: data.phoneNumber,
-                sDiaChi: data.address,
-                sMatKhau: hashPassword !== "" ? hashPassword : employee.sMatKhau,
-            });
-            return {
-                errorCode: 0,
-                errorMessage: "Cập nhật thông tin nhân viên thành công!",
-            };
-        } else {
+        if (!employee) {
             return {
                 errorCode: -1,
                 errorMessage: "Nhân viên không tồn tại!",
             };
         }
+
+        // Kiểm tra nếu email thay đổi
+        if (data.email && data.email !== employee.sEmail) {
+            const emailExists = await checkEmailExist(data.email, null, data.id);
+            if (emailExists) {
+                return {
+                    errorCode: 2,
+                    errorMessage: "Email đã tồn tại!",
+                };
+            }
+        }
+
+        // Kiểm tra nếu số điện thoại thay đổi
+        if (data.phoneNumber && data.phoneNumber !== employee.sSoDienThoai) {
+            const phoneExists = await checkPhoneUserExist(data.phoneNumber, null, data.id);
+            if (phoneExists) {
+                return {
+                    errorCode: 3,
+                    errorMessage: "Số điện thoại đã tồn tại!",
+                };
+            }
+        }
+
+        // Hash password nếu có thay đổi
+        const hashPassword = data.password ? hashPasswordUser(data.password) : employee.sMatKhau;
+
+        await employee.update({
+            FK_iQuyenHanID: data.role,
+            sHoTen: data.fullName,
+            sEmail: data.email,
+            sSoDienThoai: data.phoneNumber,
+            sDiaChi: data.address,
+            sMatKhau: hashPassword,
+        });
+
+        return {
+            errorCode: 0,
+            errorMessage: "Cập nhật thông tin nhân viên thành công!",
+        };
     } catch (error) {
         console.log(error);
         return {
@@ -567,6 +604,64 @@ const deleteEmployeeService = async (id) => {
     }
 };
 
+//------------------------------------------------------------------------------ user
+const updateProfileUserService = async (data) => {
+    try {
+        const user = await db.Customer.findOne({
+            where: { PK_iKhachHangID: data.id },
+        });
+
+        if (!user) {
+            return {
+                errorCode: -1,
+                errorMessage: "Người dùng không tồn tại!",
+            };
+        }
+
+        // Kiểm tra nếu email thay đổi và đã tồn tại ở người khác
+        if (data.email && data.email !== user.sEmail) {
+            const emailExists = await checkEmailExist(data.email, data.id);
+            if (emailExists) {
+                return {
+                    errorCode: 2,
+                    errorMessage: "Email đã tồn tại!",
+                };
+            }
+        }
+
+        // Kiểm tra nếu số điện thoại thay đổi và đã tồn tại ở người khác
+        if (data.phoneNumber && data.phoneNumber !== user.sSoDienThoai) {
+            const phoneExists = await checkPhoneUserExist(data.phoneNumber, data.id);
+            if (phoneExists) {
+                return {
+                    errorCode: 3,
+                    errorMessage: "Số điện thoại đã tồn tại!",
+                };
+            }
+        }
+
+        // Cập nhật thông tin
+        await user.update({
+            sHoTen: data.fullName,
+            sDiaChi: data.address,
+            sEmail: data?.email,
+            sSoDienThoai: data.phoneNumber,
+            sAvatar: data.avatar || null,
+        });
+
+        return {
+            errorCode: 0,
+            errorMessage: "Cập nhật thông tin người dùng thành công!",
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+        };
+    }
+};
+
 module.exports = {
     registerUserService,
     handleLoginService,
@@ -581,4 +676,6 @@ module.exports = {
     getEmployeeWithPagination,
     updateEmployeeService,
     deleteEmployeeService,
+
+    updateProfileUserService,
 };

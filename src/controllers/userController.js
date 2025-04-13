@@ -327,6 +327,32 @@ const deleteEmployee = async (req, res) => {
     }
 };
 
+//--------------------------------- User
+// hàm cập nhật người dùng (admin)
+const updateProfileUser = async (req, res) => {
+    try {
+        if (!req.body.id || !req.body.email || !req.body.phoneNumber || !req.body.fullName || !req.body.address) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+            });
+        }
+
+        let data = await userService.updateProfileUserService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+        });
+    }
+};
+
 module.exports = {
     handleRegister,
     handleLogin,
@@ -342,4 +368,6 @@ module.exports = {
     createNewEmployee,
     updateEmployee,
     deleteEmployee,
+
+    updateProfileUser,
 };
