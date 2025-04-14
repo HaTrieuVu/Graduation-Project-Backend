@@ -1,5 +1,6 @@
-import db from "../models/index";
-const { Op, fn, col, where } = require("sequelize");
+import db from "../models/index.js"; // <-- nên có .js nếu dùng ES module
+const { Op, fn, col, where, literal } = db.Sequelize; // Lấy từ Sequelize trong db
+const sequelize = db.sequelize; // Lấy thể hiện sequelize từ db
 
 //------------------------------------------------------------ Service Product
 
@@ -673,17 +674,23 @@ const deleteProductImageService = async (id) => {
 const fetchAllProductWithPagination = async (page, limit, valueFilter) => {
     try {
         let offSet = (page - 1) * limit;
-
         let orderOption = [];
 
         if (valueFilter === "ASC") {
-            // Giá tăng dần theo ProductVersion
-            orderOption.push([{ model: db.ProductVersion, as: "versions" }, "fGiaBan", "ASC"]);
+            orderOption.push([
+                sequelize.literal(
+                    `(SELECT MIN("fGiaBan") FROM "ProductVersions" WHERE "ProductVersions"."FK_iSanPhamID" = "Product"."PK_iSanPhamID")`
+                ),
+                "ASC",
+            ]);
         } else if (valueFilter === "DESC") {
-            // Giá giảm dần theo ProductVersion
-            orderOption.push([{ model: db.ProductVersion, as: "versions" }, "fGiaBan", "DESC"]);
+            orderOption.push([
+                sequelize.literal(
+                    `(SELECT MAX("fGiaBan") FROM "ProductVersions" WHERE "ProductVersions"."FK_iSanPhamID" = "Product"."PK_iSanPhamID")`
+                ),
+                "DESC",
+            ]);
         } else if (valueFilter === "RERCENT") {
-            // Giảm giá khuyến mãi giảm dần
             orderOption.push([{ model: db.Promotion, as: "promotion" }, "fGiaTriKhuyenMai", "DESC"]);
         }
 
@@ -691,7 +698,6 @@ const fetchAllProductWithPagination = async (page, limit, valueFilter) => {
             where: {
                 sTinhTrangSanPham: "Đang bán",
             },
-            required: false,
             attributes: { exclude: ["createdAt", "updatedAt", "sMoTa"] },
             include: [
                 {
@@ -727,16 +733,14 @@ const fetchAllProductWithPagination = async (page, limit, valueFilter) => {
         });
 
         let totalPage = Math.ceil(count / limit);
-        let data = {
-            totalRows: count, //tổng có tất cả bao nhiêu bản ghi
-            totalPage: totalPage,
-            products: rows,
-        };
-
         return {
             errorCode: 0,
             errorMessage: "Danh sách sản phẩm!",
-            data: data,
+            data: {
+                totalRows: count,
+                totalPage: totalPage,
+                products: rows,
+            },
         };
     } catch (error) {
         console.log(error);

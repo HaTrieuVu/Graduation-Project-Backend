@@ -662,6 +662,45 @@ const updateProfileUserService = async (data) => {
     }
 };
 
+const handleChangePasswordService = async (data) => {
+    try {
+        const user = await db.Customer.findOne({
+            where: { PK_iKhachHangID: data.id },
+        });
+
+        if (!user) {
+            return {
+                errorCode: -1,
+                errorMessage: "Người dùng không tồn tại!",
+            };
+        }
+
+        const isCorrectPassword = await checkPassword(data.passwordOld, user.sMatKhau);
+        if (!isCorrectPassword) {
+            return {
+                errorCode: -2,
+                errorMessage: "Mật khẩu hiện tại không chính xác!",
+            };
+        }
+
+        const hashPassword = hashPasswordUser(data.passwordNew);
+        await user.update({
+            sMatKhau: hashPassword,
+        });
+
+        return {
+            errorCode: 0,
+            errorMessage: "Cập nhật mật khẩu thành công!",
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+        };
+    }
+};
+
 module.exports = {
     registerUserService,
     handleLoginService,
@@ -678,4 +717,5 @@ module.exports = {
     deleteEmployeeService,
 
     updateProfileUserService,
+    handleChangePasswordService,
 };

@@ -116,9 +116,36 @@ const getAllPurchaseByUser = async (req, res) => {
     } catch (error) {}
 };
 
+// hàm hủy đơn đặt hàng (client)
+const handleCancelOrder = async (req, res) => {
+    try {
+        if (!req.body.orderId && !req.body.orderStatus) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc - order!",
+            });
+        }
+
+        let data = await orderService.handleCancelOrderService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 module.exports = {
     getOrdersByStatus,
     updateOrderStatus,
     handleOrderProduct,
     getAllPurchaseByUser,
+    handleCancelOrder,
 };

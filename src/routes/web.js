@@ -18,6 +18,9 @@ let initWebRoutes = (app) => {
     //api cập nhật thông tin người dùng
     router.put("/user/update-profile", userController.updateProfileUser);
 
+    //api đổi mật khẩu
+    router.put("/user/change-password", userController.handleChangePassword);
+
     //----------------------------------------------------------------------------------------- api Product ------------------------
     // api lấy ds sản phẩm
     router.get("/products/get-all", productController.fetchAllProduct);
@@ -54,6 +57,9 @@ let initWebRoutes = (app) => {
 
     // api lấy tất cả thông tin giỏ hàng của 1 người dùng
     router.get("/order/get-all-purchase", orderController.getAllPurchaseByUser);
+
+    // api hủy đơn mua hàng
+    router.put("/order/cancel-order", orderController.handleCancelOrder);
 
     //----------------------------------------------------------------------------------------- api Notification -----------------------------
     // api lấy thông báo của người dùng (tb của đơn đặt hàng)

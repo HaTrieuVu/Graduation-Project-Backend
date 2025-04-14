@@ -353,6 +353,31 @@ const updateProfileUser = async (req, res) => {
     }
 };
 
+// hàm đổi mật khẩu
+const handleChangePassword = async (req, res) => {
+    try {
+        if (!req.body.id || !req.body.passwordOld || !req.body.passwordNew) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+            });
+        }
+
+        let data = await userService.handleChangePasswordService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+        });
+    }
+};
+
 module.exports = {
     handleRegister,
     handleLogin,
@@ -370,4 +395,5 @@ module.exports = {
     deleteEmployee,
 
     updateProfileUser,
+    handleChangePassword,
 };

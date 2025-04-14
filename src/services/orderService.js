@@ -334,9 +334,87 @@ const getAllPurchaseByUserService = async (userId, type) => {
     }
 };
 
+const handleCancelOrderService = async (data) => {
+    try {
+        const order = await db.Order.findOne({
+            where: { PK_iDonMuaHangID: data.orderId },
+            include: [{ model: db.OrderDetail, as: "orderDetails" }],
+        });
+
+        if (!order) {
+            return {
+                errorCode: -1,
+                errorMessage: "Đơn hàng không tồn tại!",
+            };
+        }
+
+        // Kiểm tra đơn hàng có phải của user không
+        if (order.FK_iKhachHangID !== data.userId) {
+            return {
+                errorCode: -2,
+                errorMessage: "Bạn không có quyền hủy đơn hàng này!",
+            };
+        }
+
+        // Cập nhật trạng thái đơn hàng thành "Đã hủy"
+        await order.update({
+            sTrangThaiDonHang: "Đã hủy",
+        });
+
+        // Hoàn lại số lượng tồn kho cho từng phiên bản sản phẩm
+        for (const detail of order.orderDetails) {
+            const version = await db.ProductVersion.findOne({
+                where: { PK_iPhienBanID: detail.FK_iPhienBanID },
+            });
+
+            if (version) {
+                await version.update({
+                    iSoLuong: version.iSoLuong + detail.iSoLuong,
+                });
+            }
+        }
+
+        // Tạo nội dung thông báo
+        const message = `Đơn hàng #${data.orderId} đã bị hủy!`;
+
+        // Tìm hoặc tạo thông báo
+        const notification = await db.Notification.findOne({
+            where: { FK_iDonMuaHangID: data.orderId },
+        });
+
+        if (notification) {
+            await notification.update({
+                sNoiDung: message,
+                dThoiGianGui: new Date(),
+                sTrangThaiDoc: false,
+            });
+        } else {
+            await db.Notification.create({
+                FK_iKhachHangID: order.FK_iKhachHangID,
+                FK_iDonMuaHangID: data.orderId,
+                sNoiDung: message,
+                dThoiGianGui: new Date(),
+                sTrangThaiDoc: false,
+            });
+        }
+
+        return {
+            errorCode: 0,
+            errorMessage: "Hủy đơn hàng thành công!",
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+        };
+    }
+};
+
 module.exports = {
     getOrdersByStatusService,
     updateOrderStatusService,
     handleOrderProductService,
     getAllPurchaseByUserService,
+    handleCancelOrderService,
 };
