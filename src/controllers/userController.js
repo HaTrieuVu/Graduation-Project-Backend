@@ -378,6 +378,32 @@ const handleChangePassword = async (req, res) => {
     }
 };
 
+//---------------------------- Feedback (user)
+const handleSendFeedback = async (req, res) => {
+    try {
+        if (!req.body.id || !req.body.dataFeedback) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+            });
+        }
+
+        let data = await userService.handleSendFeedbackService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 module.exports = {
     handleRegister,
     handleLogin,
@@ -396,4 +422,6 @@ module.exports = {
 
     updateProfileUser,
     handleChangePassword,
+
+    handleSendFeedback,
 };

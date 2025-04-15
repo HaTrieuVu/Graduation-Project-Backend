@@ -60,6 +60,8 @@ const authenticatedPaths = [
     "/payment-vnpay/check-status",
 
     "/order/get-all-purchase",
+
+    "/user/send-feedback",
 ];
 
 module.exports = {

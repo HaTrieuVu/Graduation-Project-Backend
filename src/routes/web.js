@@ -21,6 +21,9 @@ let initWebRoutes = (app) => {
     //api đổi mật khẩu
     router.put("/user/change-password", userController.handleChangePassword);
 
+    //-----------------------------------------------api Feedback------------------
+    router.post("/user/send-feedback", userController.handleSendFeedback);
+
     //----------------------------------------------------------------------------------------- api Product ------------------------
     // api lấy ds sản phẩm
     router.get("/products/get-all", productController.fetchAllProduct);

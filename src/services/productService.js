@@ -679,19 +679,24 @@ const fetchAllProductWithPagination = async (page, limit, valueFilter) => {
         if (valueFilter === "ASC") {
             orderOption.push([
                 sequelize.literal(
-                    `(SELECT MIN("fGiaBan") FROM "ProductVersions" WHERE "ProductVersions"."FK_iSanPhamID" = "Product"."PK_iSanPhamID")`
+                    `(SELECT MIN(fGiaBan) FROM product_versions WHERE product_versions.FK_iSanPhamID = Product.PK_iSanPhamID)`
                 ),
                 "ASC",
             ]);
         } else if (valueFilter === "DESC") {
             orderOption.push([
                 sequelize.literal(
-                    `(SELECT MAX("fGiaBan") FROM "ProductVersions" WHERE "ProductVersions"."FK_iSanPhamID" = "Product"."PK_iSanPhamID")`
+                    `(SELECT MAX(fGiaBan) FROM product_versions WHERE product_versions.FK_iSanPhamID = Product.PK_iSanPhamID)`
                 ),
                 "DESC",
             ]);
         } else if (valueFilter === "RERCENT") {
-            orderOption.push([{ model: db.Promotion, as: "promotion" }, "fGiaTriKhuyenMai", "DESC"]);
+            orderOption.push([
+                sequelize.literal(
+                    `(SELECT MAX(fGiaTriKhuyenMai) FROM promotions WHERE promotions.FK_iSanPhamID = Product.PK_iSanPhamID)`
+                ),
+                "DESC",
+            ]);
         }
 
         const { count, rows } = await db.Product.findAndCountAll({

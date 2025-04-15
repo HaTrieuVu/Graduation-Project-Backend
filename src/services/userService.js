@@ -604,7 +604,7 @@ const deleteEmployeeService = async (id) => {
     }
 };
 
-//------------------------------------------------------------------------------ user
+//------------------------------------------------------------------------------ user (profile)
 const updateProfileUserService = async (data) => {
     try {
         const user = await db.Customer.findOne({
@@ -701,6 +701,31 @@ const handleChangePasswordService = async (data) => {
     }
 };
 
+//-------------------------------------------------------- feedback
+const handleSendFeedbackService = async (data) => {
+    try {
+        const { id, dataFeedback } = data;
+
+        await db.Feedback.create({
+            FK_iKhachHangID: id,
+            sNoiDungPhanHoi: dataFeedback,
+            dThoiGianGui: new Date(),
+            sTrangThaiXuLy: "Chưa xử lý", // mặc định trạng thái ban đầu
+        });
+
+        return {
+            errorCode: 0,
+            errorMessage: "Gửi phản hồi thành công!",
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+        };
+    }
+};
+
 module.exports = {
     registerUserService,
     handleLoginService,
@@ -718,4 +743,6 @@ module.exports = {
 
     updateProfileUserService,
     handleChangePasswordService,
+
+    handleSendFeedbackService,
 };
