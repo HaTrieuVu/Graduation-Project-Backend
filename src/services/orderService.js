@@ -411,10 +411,60 @@ const handleCancelOrderService = async (data) => {
     }
 };
 
+const handleCheckStockService = async (data) => {
+    const transaction = await db.sequelize.transaction();
+    try {
+        for (const item of data.orderDetails) {
+            const productVersion = await db.ProductVersion.findOne({
+                where: { PK_iPhienBanID: item.productVersionId },
+                include: [
+                    {
+                        model: db.Product,
+                        as: "productData",
+                        attributes: ["sTenSanPham"],
+                    },
+                ],
+                transaction,
+            });
+
+            if (!productVersion) {
+                return {
+                    errorCode: -3,
+                    errorMessage: `Không tìm thấy phiên bản sản phẩm với ID ${item.productVersionId}.`,
+                };
+            }
+
+            if (productVersion.iSoLuong < item.quantity) {
+                return {
+                    errorCode: -2,
+                    errorMessage: `Sản phẩm "${
+                        productVersion.productData?.sTenSanPham || "Không rõ tên"
+                    }" không đủ hàng tồn kho.`,
+                };
+            }
+        }
+
+        // Nếu tất cả sản phẩm đều đủ hàng
+        return {
+            errorCode: 0,
+            errorMessage: "Tồn kho đủ để tiếp tục đặt hàng.",
+        };
+    } catch (error) {
+        await transaction.rollback();
+        console.log("error from service", error);
+        return {
+            errorCode: -1,
+            errorMessage: "Đã xảy ra lỗi!",
+            data: "",
+        };
+    }
+};
+
 module.exports = {
     getOrdersByStatusService,
     updateOrderStatusService,
     handleOrderProductService,
     getAllPurchaseByUserService,
     handleCancelOrderService,
+    handleCheckStockService,
 };

@@ -64,6 +64,9 @@ let initWebRoutes = (app) => {
     // api hủy đơn mua hàng
     router.put("/order/cancel-order", orderController.handleCancelOrder);
 
+    // api check tồn kho của sp đó trc khi mua
+    router.post("/order/check-stock", orderController.handleCheckStock);
+
     //----------------------------------------------------------------------------------------- api Notification -----------------------------
     // api lấy thông báo của người dùng (tb của đơn đặt hàng)
     router.get("/notification/get-info", notificationController.getNotification);

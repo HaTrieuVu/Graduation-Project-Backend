@@ -142,10 +142,37 @@ const handleCancelOrder = async (req, res) => {
     }
 };
 
+// hàm check số lượng tồn kho trước khi mua
+const handleCheckStock = async (req, res) => {
+    try {
+        if (!req.body.orderDetails) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc - order!",
+            });
+        }
+
+        let data = await orderService.handleCheckStockService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 module.exports = {
     getOrdersByStatus,
     updateOrderStatus,
     handleOrderProduct,
     getAllPurchaseByUser,
     handleCancelOrder,
+    handleCheckStock,
 };

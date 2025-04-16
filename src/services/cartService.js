@@ -167,19 +167,31 @@ const handleToggleCartQuantityService = async ({ userId, cartId, cartDetailId, p
             newQuantity -= 1;
         }
 
-        // Kiểm tra giới hạn số lượng
+        // Nếu số lượng < 1 → trả lỗi
+        if (newQuantity < 1) {
+            return {
+                errorCode: 4,
+                errorMessage: "Số lượng sản phẩm trong giỏ hàng không thể nhỏ hơn 1.",
+            };
+        }
+
+        // Nếu số lượng vượt quá tồn kho → gán lại bằng tồn kho và cập nhật luôn
         if (newQuantity > productVersion.iSoLuong) {
             newQuantity = productVersion.iSoLuong;
             await cartDetail.update({ iSoLuong: newQuantity });
-            return { errorCode: 5, errorMessage: "Số lượng mua không thể vượt quá tồn kho của sản phẩm!" };
-        } else if (newQuantity < 1) {
-            return { errorCode: 4, errorMessage: "Số lượng sản phẩm trong giỏ hàng không thể nhỏ hơn 1." };
+            return {
+                errorCode: 5,
+                errorMessage: "Số lượng mua không thể vượt quá tồn kho của sản phẩm! Đã tự động điều chỉnh.",
+            };
         }
 
-        // Cập nhật số lượng trong CartDetail
-        // await cartDetail.update({ iSoLuong: newQuantity });
+        // Nếu hợp lệ thì cập nhật
+        await cartDetail.update({ iSoLuong: newQuantity });
 
-        return { errorCode: 0, errorMessage: "Cập nhật số lượng thành công." };
+        return {
+            errorCode: 0,
+            errorMessage: "Cập nhật số lượng thành công.",
+        };
     } catch (error) {
         console.error("Lỗi cập nhật giỏ hàng:", error);
         return { errorCode: 500, errorMessage: "Lỗi server." };

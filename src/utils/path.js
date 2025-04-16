@@ -45,6 +45,7 @@ const authenticatedPaths = [
     "/user/change-password",
     "/order/order-product",
     "/order/cancel-order",
+    "/order/check-stock",
     "/notification/get-info",
     "/notification/delete-notify",
 
