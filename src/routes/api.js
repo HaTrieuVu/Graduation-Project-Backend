@@ -10,6 +10,7 @@ import roleController from "../controllers/roleController";
 import importReceiptController from "../controllers/importReceiptController";
 import warrantyController from "../controllers/warrantyController";
 import promotionController from "../controllers/promotionController";
+import statisticController from "../controllers/statisticController";
 
 import { checkUserJWT, checkUserPermission } from "../middleware/JWTAction";
 
@@ -143,6 +144,13 @@ let initApiRoutes = (app) => {
     //----------------------------------- api manage Role ------------------------
     // api lấy ds role
     router.get("/manage-role/get-all", roleController.getAllRole);
+
+    //----------------------------------- api thống kê---------------------------
+    // api lấy dữ liệu thống kế bán hàng
+    router.get("/statistical/statistic-revenue", statisticController.statisticRevenue);
+
+    // api lấy dữ liệu thống kế nhập hàng hàng
+    router.get("/statistical/statistic-import-receipt", statisticController.statisticImportReceipt);
 
     return app.use("/api/v1", router);
 };
