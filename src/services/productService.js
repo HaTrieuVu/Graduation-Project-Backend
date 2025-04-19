@@ -357,6 +357,7 @@ const createNewProductVersionService = async (data) => {
             FK_iSanPhamID: data.productId,
             FK_iHinhAnhID: data.productImageId,
             sDungLuong: data.capacity,
+            sDungLuongKhaDung: data.availableCapacity,
             fGiaBan: data.price,
             iSoLuong: data.quantity,
             bTrangThai: data.status,
@@ -386,6 +387,7 @@ const updateProductVersionService = async (data) => {
                 FK_iSanPhamID: data.productId,
                 FK_iHinhAnhID: data.productImageId,
                 sDungLuong: data.capacity,
+                sDungLuongKhaDung: data.availableCapacity,
                 fGiaBan: data.price,
                 iSoLuong: data.quantity,
                 bTrangThai: data.status,
@@ -668,6 +670,164 @@ const deleteProductImageService = async (id) => {
     }
 };
 
+//----------------------------------------------------- Service Product Parameters
+// lấy sản phẩm - thông số theo phân trang (admin)
+const getProductParametersWithPagination = async (page, limit, valueSearch) => {
+    try {
+        let offSet = (page - 1) * limit;
+        const whereCondition = valueSearch === "all" ? {} : { FK_iSanPhamID: valueSearch };
+        const { count, rows } = await db.ProductParameter.findAndCountAll({
+            where: whereCondition,
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            include: [
+                {
+                    model: db.Product,
+                    as: "product",
+                    attributes: ["sTenSanPham"],
+                },
+            ],
+            offset: offSet,
+            limit: limit,
+        });
+
+        let totalPage = Math.ceil(count / limit);
+        let data = {
+            totalRows: count, //tổng có tất cả bao nhiêu bản ghi
+            totalPage: totalPage,
+            productParameters: rows,
+        };
+
+        return {
+            errorCode: 0,
+            errorMessage: "Danh sách sản phẩm - thông số!",
+            data: data,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
+//thêm mới sản phẩm - thông số (admin)
+const createNewProductParametersService = async (data) => {
+    try {
+        const existingParam = await db.ProductParameter.findOne({
+            where: {
+                FK_iSanPhamID: data.productId,
+            },
+        });
+
+        if (existingParam) {
+            return {
+                errorCode: 2,
+                errorMessage: "Thông số cho sản phẩm này đã tồn tại!",
+            };
+        }
+
+        // Tạo mới thông số sản phẩm
+        await db.ProductParameter.create({
+            FK_iSanPhamID: data.productId,
+            sHeDieuHanh: data.operatingSystem,
+            sCPU: data.cpu,
+            sTocDoCPU: data.cpuSpeed,
+            sGPU: data.gpu,
+            sRAM: data.ram,
+            sDungLuongKhaDung: data.availableCapacity,
+            sCameraSau: data.rearCamera,
+            sCameraTruoc: data.frontCamera,
+            sManHinh: data.screen,
+            sPin: data.batteryCapacity,
+            sLoaiPin: data.batteryType,
+            sSac: data.charger,
+        });
+
+        return {
+            errorCode: 0,
+            errorMessage: "Thêm mới thông số kỹ thuật thành công!",
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi khi thêm thông số kỹ thuật!",
+        };
+    }
+};
+
+//cập nhật thông tin sản phẩm - thông số (admin)
+const updateProductParametersService = async (data) => {
+    try {
+        let productParameter = await db.ProductParameter.findOne({
+            where: { PK_iThongSoID: data.id },
+        });
+
+        if (productParameter) {
+            await productParameter.update({
+                FK_iSanPhamID: data.productId,
+                sHeDieuHanh: data.operatingSystem,
+                sCPU: data.cpu,
+                sTocDoCPU: data.cpuSpeed,
+                sGPU: data.gpu,
+                sRAM: data.ram,
+                sCameraSau: data.rearCamera,
+                sCameraTruoc: data.frontCamera,
+                sManHinh: data.screen,
+                sPin: data.batteryCapacity,
+                sLoaiPin: data.batteryType,
+                sSac: data.charger,
+            });
+
+            return {
+                errorCode: 0,
+                errorMessage: "Cập nhật thông tin sản phẩm - thông số thành công!",
+            };
+        } else {
+            return {
+                errorCode: -1,
+                errorMessage: "Sản phẩm - thông số không tồn tại!",
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+        };
+    }
+};
+
+//xóa sản phẩm - thông số (admin)
+const deleteProductParametersService = async (id) => {
+    try {
+        let productParameter = await db.ProductParameter.findOne({
+            where: { PK_iThongSoID: id },
+        });
+
+        if (productParameter) {
+            await productParameter.destroy();
+            return {
+                errorCode: 0,
+                errorMessage: "Xóa sản phẩm - thông số thành công!",
+            };
+        } else {
+            return {
+                errorCode: -1,
+                errorMessage: "Sản phẩm - thông số không tồn tại",
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+        };
+    }
+};
+
 //----------------------------------------------------------------- Client
 
 // lấy ds sản phẩm theo phân trang để hiện thị phía client
@@ -921,6 +1081,11 @@ module.exports = {
     createNewProductImageService,
     updateProductImageService,
     deleteProductImageService,
+
+    getProductParametersWithPagination,
+    createNewProductParametersService,
+    updateProductParametersService,
+    deleteProductParametersService,
 
     fetchAllProductWithPagination,
     getInfoProductSingleService,

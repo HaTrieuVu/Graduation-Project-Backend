@@ -83,6 +83,16 @@ let initApiRoutes = (app) => {
     //api xóa sản phẩm - hình ảnh
     router.delete("/manage-product-image/delete", productController.deleteProductImage);
 
+    //----------------------------------- api manage Product Parameters ------------------------
+    // api lấy ds sản phẩm - thông số
+    router.get("/manage-product-parameters/get-all", productController.getAllProductParameters);
+    // api thêm mới sản phẩm - thông số
+    router.post("/manage-product-parameters/create", productController.createNewProductParameters);
+    // api cập nhật sản phẩm - thông số
+    router.put("/manage-product-parameters/update", productController.updateProductParameters);
+    //api xóa sản phẩm - thông số
+    router.delete("/manage-product-parameters/delete", productController.deleteProductParameters);
+
     //----------------------------------- api manage Import Receipt ------------------------
     // api lấy ds đơn nhập hàng
     router.get("/manage-import-receipt/get-all", importReceiptController.getAllImportReceipt);

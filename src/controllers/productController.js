@@ -195,6 +195,7 @@ const createNewProductVersion = async (req, res) => {
             !req.body.productId ||
             !req.body.productImageId ||
             !req.body.capacity ||
+            !req.body.availableCapacity ||
             !req.body.price ||
             !req.body.quantity ||
             !req.body.status
@@ -228,6 +229,7 @@ const updateProductVersion = async (req, res) => {
             !req.body.productId ||
             !req.body.productImageId ||
             !req.body.capacity ||
+            !req.body.availableCapacity ||
             !req.body.price ||
             !req.body.quantity ||
             !req.body.status
@@ -411,6 +413,133 @@ const deleteProductImage = async (req, res) => {
     }
 };
 
+//------------------------------- Product Parameter
+
+// hàm lấy ds sản phẩm - thông số (admin)
+const getAllProductParameters = async (req, res) => {
+    try {
+        if (req?.query?.page && req?.query?.limit && req?.query?.valueSearch) {
+            let page = req?.query?.page;
+            let limit = req?.query?.limit;
+            let valueSearch = req?.query?.valueSearch;
+
+            let data = await productService.getProductParametersWithPagination(+page, +limit, valueSearch);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm thêm mới sản phẩm - thông số (admin)
+
+const createNewProductParameters = async (req, res) => {
+    try {
+        if (
+            !req.body.productId ||
+            !req.body.operatingSystem ||
+            !req.body.cpu ||
+            !req.body.cpuSpeed ||
+            !req.body.gpu ||
+            !req.body.ram ||
+            !req.body.rearCamera ||
+            !req.body.frontCamera ||
+            !req.body.screen ||
+            !req.body.batteryCapacity ||
+            !req.body.batteryType ||
+            !req.body.charger
+        ) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+            });
+        }
+
+        let data = await productService.createNewProductParametersService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+        });
+    }
+};
+
+// hàm cập nhật sản phẩm - thông số (admin)
+const updateProductParameters = async (req, res) => {
+    try {
+        if (
+            !req.body.id ||
+            !req.body.productId ||
+            !req.body.operatingSystem ||
+            !req.body.cpu ||
+            !req.body.cpuSpeed ||
+            !req.body.gpu ||
+            !req.body.ram ||
+            !req.body.rearCamera ||
+            !req.body.frontCamera ||
+            !req.body.screen ||
+            !req.body.batteryCapacity ||
+            !req.body.batteryType ||
+            !req.body.charger
+        ) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+            });
+        }
+
+        let data = await productService.updateProductParametersService(req.body);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+// hàm xóa sản phẩm - thông số (admin)
+const deleteProductParameters = async (req, res) => {
+    try {
+        if (req?.body?.id) {
+            let data = await productService.deleteProductParametersService(req?.body?.id);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+        });
+    }
+};
+
 //------------------------------------ Client
 // hàm lấy ds sản phẩm để hiện thị phía client
 const fetchAllProduct = async (req, res) => {
@@ -503,6 +632,11 @@ module.exports = {
     createNewProductImage,
     updateProductImage,
     deleteProductImage,
+
+    getAllProductParameters,
+    createNewProductParameters,
+    updateProductParameters,
+    deleteProductParameters,
 
     fetchAllProduct,
     getInfoProductSingle,

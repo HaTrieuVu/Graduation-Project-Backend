@@ -10,6 +10,8 @@ module.exports = (sequelize, DataTypes) => {
             Product.hasMany(models.ProductImage, { foreignKey: "FK_iSanPhamID", as: "images" }); // Một sản phẩm có nhiều hình ảnh
             Product.hasOne(models.Promotion, { foreignKey: "FK_iSanPhamID", as: "promotion" }); // Một sản phẩm có một khuyến mãi
             Product.hasMany(models.SupplierProduct, { foreignKey: "FK_iSanPhamID", as: "suppliers" }); // Một sản phẩm có nhiều nhà cung cấp
+
+            Product.hasOne(models.ProductParameter, { foreignKey: "FK_iSanPhamID", as: "parameters" });
         }
     }
 

@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
             FK_iSanPhamID: DataTypes.INTEGER,
             FK_iHinhAnhID: DataTypes.INTEGER,
             sDungLuong: DataTypes.STRING,
+            sDungLuongKhaDung: DataTypes.STRING,
             fGiaBan: DataTypes.FLOAT,
             iSoLuong: DataTypes.INTEGER,
             bTrangThai: DataTypes.BOOLEAN,
