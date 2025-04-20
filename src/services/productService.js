@@ -958,6 +958,11 @@ const getInfoProductSingleService = async (id) => {
                     attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
                 },
                 {
+                    model: db.ProductParameter,
+                    as: "parameters",
+                    attributes: { exclude: ["createdAt", "updatedAt"] },
+                },
+                {
                     model: db.Promotion,
                     as: "promotion",
                     attributes: ["fGiaTriKhuyenMai"],
