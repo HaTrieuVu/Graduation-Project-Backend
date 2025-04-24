@@ -180,6 +180,14 @@ const handleOrderProductService = async (data) => {
             }
         }
 
+        // Cập nhật địa chỉ giao hàng nếu có
+        if (data.deliveryAddress && data.deliveryAddress.trim() !== "") {
+            await db.Customer.update(
+                { sDiaChi: data.deliveryAddress },
+                { where: { PK_iKhachHangID: data.userId }, transaction }
+            );
+        }
+
         // Tạo đơn hàng
         const newOrder = await db.Order.create(
             {
@@ -190,6 +198,7 @@ const handleOrderProductService = async (data) => {
                 sPhuongThucThanhToan: data.paymentMethod,
                 sTrangThaiDonHang: "Chờ xác nhận",
                 sTrangThaiThanhToan: data.statusPayment,
+                sCongThanhToan: data.paymentGateway || null,
             },
             { transaction }
         );
@@ -218,7 +227,7 @@ const handleOrderProductService = async (data) => {
             {
                 FK_iKhachHangID: data.userId,
                 FK_iDonMuaHangID: newOrder.PK_iDonMuaHangID,
-                sNoiDung: `Đơn hàng #34304${newOrder.PK_iDonMuaHangID} đã được đặt thành công!`,
+                sNoiDung: `Đơn hàng #${newOrder.PK_iDonMuaHangID} đã được đặt thành công!`,
                 dThoiGianGui: new Date(),
                 sTrangThaiDoc: false,
             },

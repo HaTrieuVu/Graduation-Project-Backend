@@ -835,7 +835,11 @@ const fetchAllProductWithPagination = async (page, limit, valueFilter) => {
     try {
         let offSet = (page - 1) * limit;
         let orderOption = [];
+        let whereCondition = {
+            sTinhTrangSanPham: "Đang bán",
+        };
 
+        // Order theo giá bán hoặc khuyến mãi
         if (valueFilter === "ASC") {
             orderOption.push([
                 sequelize.literal(
@@ -859,10 +863,58 @@ const fetchAllProductWithPagination = async (page, limit, valueFilter) => {
             ]);
         }
 
+        // Lọc theo khoảng giá
+        if (
+            valueFilter === "typePrice1" ||
+            valueFilter === "typePrice2" ||
+            valueFilter === "typePrice3" ||
+            valueFilter === "typePrice4" ||
+            valueFilter === "typePrice5"
+        ) {
+            let minPrice = 0;
+            let maxPrice = Infinity;
+
+            switch (valueFilter) {
+                case "typePrice1":
+                    minPrice = 1000000;
+                    maxPrice = 5000000;
+                    break;
+                case "typePrice2":
+                    minPrice = 5000000;
+                    maxPrice = 10000000;
+                    break;
+                case "typePrice3":
+                    minPrice = 10000000;
+                    maxPrice = 15000000;
+                    break;
+                case "typePrice4":
+                    minPrice = 15000000;
+                    maxPrice = 25000000;
+                    break;
+                case "typePrice5":
+                    minPrice = 25000000;
+                    break;
+            }
+
+            const priceLiteral = literal(
+                `(SELECT MIN(fGiaBan) FROM product_versions WHERE product_versions.FK_iSanPhamID = Product.PK_iSanPhamID)`
+            );
+
+            if (maxPrice !== Infinity) {
+                whereCondition[Op.and] = [
+                    ...(whereCondition[Op.and] || []),
+                    where(priceLiteral, { [Op.gte]: minPrice, [Op.lte]: maxPrice }),
+                ];
+            } else {
+                whereCondition[Op.and] = [
+                    ...(whereCondition[Op.and] || []),
+                    where(priceLiteral, { [Op.gte]: minPrice }),
+                ];
+            }
+        }
+
         const { count, rows } = await db.Product.findAndCountAll({
-            where: {
-                sTinhTrangSanPham: "Đang bán",
-            },
+            where: whereCondition,
             attributes: { exclude: ["createdAt", "updatedAt", "sMoTa"] },
             include: [
                 {

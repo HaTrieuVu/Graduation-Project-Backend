@@ -4,7 +4,7 @@ const getNotificationService = async (id) => {
     try {
         let notification = await db.Notification.findAll({
             where: { FK_iKhachHangID: id },
-            attributes: ["sNoiDung", "PK_iThongBaoID"],
+            attributes: ["sNoiDung", "PK_iThongBaoID", "dThoiGianGui"],
             include: [
                 {
                     model: db.Order,
@@ -38,6 +38,7 @@ const getNotificationService = async (id) => {
                     ],
                 },
             ],
+            order: [["dThoiGianGui", "DESC"]],
             raw: true,
             nest: true,
         });

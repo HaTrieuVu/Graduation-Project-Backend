@@ -18,6 +18,7 @@ module.exports = {
             fTongTien: Sequelize.FLOAT,
             fPhiShip: Sequelize.FLOAT,
             sPhuongThucThanhToan: Sequelize.STRING,
+            sCongThanhToan: Sequelize.STRING,
             sTrangThaiDonHang: Sequelize.STRING,
             sTrangThaiThanhToan: Sequelize.STRING,
             dNgayGiaoHang: Sequelize.DATE,

@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
             fTongTien: DataTypes.FLOAT,
             fPhiShip: DataTypes.FLOAT,
             sPhuongThucThanhToan: DataTypes.STRING,
+            sCongThanhToan: DataTypes.STRING,
             sTrangThaiDonHang: DataTypes.STRING,
             sTrangThaiThanhToan: DataTypes.STRING,
             dNgayGiaoHang: DataTypes.DATE,
