@@ -180,12 +180,14 @@ const handleOrderProductService = async (data) => {
             }
         }
 
-        // Cập nhật địa chỉ giao hàng nếu có
-        if (data.deliveryAddress && data.deliveryAddress.trim() !== "") {
-            await db.Customer.update(
-                { sDiaChi: data.deliveryAddress },
-                { where: { PK_iKhachHangID: data.userId }, transaction }
-            );
+        // Xác định địa chỉ giao hàng
+        let deliveryAddress = data.deliveryAddress;
+        if (!deliveryAddress) {
+            const customer = await db.Customer.findOne({
+                where: { PK_iKhachHangID: data.userId },
+                transaction,
+            });
+            deliveryAddress = customer ? customer.sDiaChi : "";
         }
 
         // Tạo đơn hàng
@@ -199,6 +201,7 @@ const handleOrderProductService = async (data) => {
                 sTrangThaiDonHang: "Chờ xác nhận",
                 sTrangThaiThanhToan: data.statusPayment,
                 sCongThanhToan: data.paymentGateway || null,
+                sDiaChiGiaoHang: deliveryAddress,
             },
             { transaction }
         );

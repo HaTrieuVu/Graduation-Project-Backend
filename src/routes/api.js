@@ -156,8 +156,11 @@ let initApiRoutes = (app) => {
     router.get("/manage-role/get-all", roleController.getAllRole);
 
     //----------------------------------- api thống kê---------------------------
-    // api lấy dữ liệu thống kế bán hàng
-    router.get("/statistical/statistic-revenue", statisticController.statisticRevenue);
+    // api lấy dữ liệu thống kế bán hàng theo tháng
+    router.get("/statistics/revenue-month", statisticController.statisticRevenueByMonth);
+
+    // api lấy dữ liệu thống kế bán hàng theo tuần trong tháng
+    router.get("/statistics/revenue-week", statisticController.statisticRevenueByWeek);
 
     // api lấy dữ liệu thống kế nhập hàng hàng
     router.get("/statistical/statistic-import-receipt", statisticController.statisticImportReceipt);

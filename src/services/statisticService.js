@@ -2,7 +2,7 @@ import db from "../models/index";
 
 const { Op, fn, col, literal } = require("sequelize");
 
-const statisticRevenueService = async () => {
+const statisticRevenueByMonthService = async () => {
     try {
         const result = await db.Order.findAll({
             attributes: [
@@ -43,6 +43,56 @@ const statisticRevenueService = async () => {
         return {
             errorCode: 1,
             errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
+const statisticRevenueByWeekService = async (month, year) => {
+    try {
+        const startDate = new Date(year, month - 1, 1); // ngày đầu tháng
+        const endDate = new Date(year, month, 0); // ngày cuối tháng
+
+        const orders = await db.Order.findAll({
+            attributes: [
+                [db.sequelize.literal(`FLOOR((DAY(dNgayLapDon) - 1) / 7) + 1`), "week"],
+                [db.sequelize.fn("SUM", db.sequelize.col("fTongTien")), "revenue"],
+            ],
+            where: {
+                dNgayLapDon: {
+                    [Op.gte]: startDate,
+                    [Op.lte]: endDate,
+                },
+                sTrangThaiDonHang: "Giao hàng thành công",
+            },
+            group: [db.sequelize.literal(`FLOOR((DAY(dNgayLapDon) - 1) / 7) + 1`)],
+            order: [db.sequelize.literal(`week ASC`)],
+            raw: true,
+        });
+
+        // Chuẩn bị 4 tuần (tuần 1, tuần 2, tuần 3, tuần 4)
+        const data = Array.from({ length: 4 }, (_, index) => ({
+            name: `Tuần ${index + 1}`,
+            revenue: 0,
+        }));
+
+        orders.forEach((item) => {
+            const weekIndex = item.week - 1;
+            if (weekIndex >= 0 && weekIndex < 4) {
+                data[weekIndex].revenue = Number((item.revenue / 1000000).toFixed(1));
+            }
+        });
+
+        return {
+            errorCode: 0,
+            errorMessage: "Thống kê doanh thu theo tuần thành công!",
+            data,
+        };
+    } catch (error) {
+        console.error("Error in statisticRevenueByWeekService:", error);
+        return {
+            errorCode: 1,
+            errorMessage: "Lỗi server",
             data: [],
         };
     }
@@ -94,6 +144,7 @@ const statisticImportReceiptService = async () => {
 };
 
 module.exports = {
-    statisticRevenueService,
+    statisticRevenueByMonthService,
+    statisticRevenueByWeekService,
     statisticImportReceiptService,
 };

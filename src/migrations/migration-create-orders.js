@@ -21,6 +21,7 @@ module.exports = {
             sCongThanhToan: Sequelize.STRING,
             sTrangThaiDonHang: Sequelize.STRING,
             sTrangThaiThanhToan: Sequelize.STRING,
+            sDiaChiGiaoHang: Sequelize.STRING,
             dNgayGiaoHang: Sequelize.DATE,
             createdAt: {
                 allowNull: false,

@@ -1,8 +1,29 @@
 import statisticService from "../services/statisticService";
 
-const statisticRevenue = async (req, res) => {
+const statisticRevenueByMonth = async (req, res) => {
     try {
-        let data = await statisticService.statisticRevenueService();
+        let data = await statisticService.statisticRevenueByMonthService();
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+            data: data.data,
+        });
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
+const statisticRevenueByWeek = async (req, res) => {
+    let month = req?.query?.month;
+    let year = req?.query?.year;
+    try {
+        let data = await statisticService.statisticRevenueByWeekService(month, year);
 
         return res.status(200).json({
             errorCode: data.errorCode,
@@ -39,6 +60,7 @@ const statisticImportReceipt = async (req, res) => {
 };
 
 module.exports = {
-    statisticRevenue,
+    statisticRevenueByMonth,
+    statisticRevenueByWeek,
     statisticImportReceipt,
 };
