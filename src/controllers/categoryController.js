@@ -103,9 +103,37 @@ const deleteCategory = async (req, res) => {
     }
 };
 
+// hàm lấy các sản phẩm thuộc danh mục sản phẩm
+const getAllProductOfCategory = async (req, res) => {
+    try {
+        if (req?.query?.page && req?.query?.limit && req?.query?.categoryId) {
+            let page = req?.query?.page;
+            let limit = req?.query?.limit;
+            let categoryId = req?.query?.categoryId;
+
+            let data = await categoryService.getAllProductOfCategoryService(+page, +limit, +categoryId);
+
+            return res.status(200).json({
+                errorCode: data.errorCode,
+                errorMessage: data.errorMessage,
+                data: data.data,
+            });
+        }
+    } catch (error) {
+        console.log(">>> ERR", error);
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+            data: "",
+        });
+    }
+};
+
 module.exports = {
     getAllCategory,
     createNewCategory,
     updateCategory,
     deleteCategory,
+
+    getAllProductOfCategory,
 };

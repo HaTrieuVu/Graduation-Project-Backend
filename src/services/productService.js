@@ -865,6 +865,7 @@ const fetchAllProductWithPagination = async (page, limit, valueFilter) => {
 
         // Lọc theo khoảng giá
         if (
+            valueFilter === "typePrice0" ||
             valueFilter === "typePrice1" ||
             valueFilter === "typePrice2" ||
             valueFilter === "typePrice3" ||
@@ -875,6 +876,10 @@ const fetchAllProductWithPagination = async (page, limit, valueFilter) => {
             let maxPrice = Infinity;
 
             switch (valueFilter) {
+                case "typePrice0":
+                    minPrice = 100000;
+                    maxPrice = 1000000;
+                    break;
                 case "typePrice1":
                     minPrice = 1000000;
                     maxPrice = 5000000;

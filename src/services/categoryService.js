@@ -151,10 +151,78 @@ const deleteCategoryService = async (id) => {
     }
 };
 
+const getAllProductOfCategoryService = async (page, limit, categoryId) => {
+    try {
+        let offSet = (page - 1) * limit;
+
+        // Lấy thông tin danh mục
+        const category = await db.Category.findOne({
+            where: { PK_iDanhMucID: categoryId },
+            attributes: ["sTenDanhMuc"],
+        });
+
+        const { count, rows } = await db.Product.findAndCountAll({
+            where: { FK_iDanhMucID: categoryId }, // Thêm điều kiện lọc theo danh mục
+            attributes: { exclude: ["createdAt", "updatedAt", "sMoTa"] },
+            include: [
+                {
+                    model: db.Category,
+                    as: "categoryData",
+                    attributes: ["sTenDanhMuc"],
+                },
+                {
+                    model: db.Brand,
+                    as: "brandData",
+                    attributes: ["sTenNhanHang"],
+                },
+                {
+                    model: db.ProductVersion,
+                    as: "versions",
+                    attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
+                },
+                {
+                    model: db.ProductImage,
+                    as: "images",
+                    attributes: { exclude: ["createdAt", "updatedAt", "FK_iSanPhamID"] },
+                },
+                {
+                    model: db.Promotion,
+                    as: "promotion",
+                    attributes: ["fGiaTriKhuyenMai"],
+                },
+            ],
+            offset: offSet,
+            limit: limit,
+            distinct: true,
+        });
+
+        let totalPage = Math.ceil(count / limit);
+        return {
+            errorCode: 0,
+            errorMessage: "Danh sách sản phẩm!",
+            data: {
+                totalRows: count,
+                totalPage: totalPage,
+                products: rows,
+                categoryName: category ? category.sTenDanhMuc : null,
+            },
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+            data: [],
+        };
+    }
+};
+
 module.exports = {
     getAllCategoryService,
     getCategoryWithPagination,
     createNewCategoryService,
     updateCategoryService,
     deleteCategoryService,
+
+    getAllProductOfCategoryService,
 };

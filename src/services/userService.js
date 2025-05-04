@@ -6,6 +6,8 @@ import bcrypt from "bcryptjs";
 import db from "../models/index";
 import { createJWT } from "../middleware/JWTAction";
 
+import emailService from "./emailService";
+
 const salt = bcrypt.genSaltSync(10);
 
 // Kiểm tra email tồn tại trong Customer hoặc Employee
@@ -726,6 +728,51 @@ const handleSendFeedbackService = async (data) => {
     }
 };
 
+//-------------------------------------------- Forgot password
+const handleForgotPasswordService = async (email) => {
+    try {
+        const user = await db.Customer.findOne({
+            where: { sEmail: email },
+        });
+
+        if (!user) {
+            return {
+                errorCode: -1,
+                errorMessage: "Email không tồn tại. Hãy nhập lại!",
+            };
+        } else {
+            // Tạo mật khẩu mới gồm 6 chữ số ngẫu nhiên
+            const password = Math.floor(100000 + Math.random() * 900000).toString();
+
+            // Băm mật khẩu mới
+            const hashedPassword = hashPasswordUser(password);
+
+            // Cập nhật vào database
+            await user.update({
+                sMatKhau: hashedPassword,
+            });
+
+            // Gửi email thông báo mật khẩu mới
+            await emailService.sendResetPasswordEmail({
+                userName: user.sHoTen,
+                reciverEmail: user.sEmail,
+                newPassword: password,
+            });
+
+            return {
+                errorCode: 0,
+                errorMessage: "Mật khẩu mới đã được gửi tới email của bạn!",
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            errorCode: 1,
+            errorMessage: "Đã xảy ra lỗi - service!",
+        };
+    }
+};
+
 module.exports = {
     registerUserService,
     handleLoginService,
@@ -745,4 +792,6 @@ module.exports = {
     handleChangePasswordService,
 
     handleSendFeedbackService,
+
+    handleForgotPasswordService,
 };

@@ -404,6 +404,30 @@ const handleSendFeedback = async (req, res) => {
     }
 };
 
+//----------------------------- Forget Password
+const handleForgotPassword = async (req, res) => {
+    try {
+        if (!req.body.email) {
+            return res.status(200).json({
+                errorCode: 1,
+                errorMessage: "Thiếu tham số bắt buộc!",
+            });
+        }
+
+        let data = await userService.handleForgotPasswordService(req?.body?.email);
+
+        return res.status(200).json({
+            errorCode: data.errorCode,
+            errorMessage: data.errorMessage,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            errorCode: -1,
+            errorMessage: "Error From Server",
+        });
+    }
+};
+
 module.exports = {
     handleRegister,
     handleLogin,
@@ -424,4 +448,5 @@ module.exports = {
     handleChangePassword,
 
     handleSendFeedback,
+    handleForgotPassword,
 };

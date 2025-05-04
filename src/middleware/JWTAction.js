@@ -12,6 +12,8 @@ const nonSecurePaths = [
     "/products/get-all",
     "/product/brand",
     "/products/search",
+    "/category/product-of-category",
+    "/user/forgot-password",
 ];
 
 // hàm tạo JWT

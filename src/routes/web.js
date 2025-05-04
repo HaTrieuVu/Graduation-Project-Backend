@@ -7,6 +7,7 @@ import cartController from "../controllers/cartController";
 import orderController from "../controllers/orderController";
 import notificationController from "../controllers/notificationController";
 import paymentController from "../controllers/paymentController";
+import categoryController from "../controllers/categoryController";
 
 let router = express.Router();
 
@@ -20,6 +21,9 @@ let initWebRoutes = (app) => {
 
     //api đổi mật khẩu
     router.put("/user/change-password", userController.handleChangePassword);
+
+    //api lấy lại mật khẩu (quên mk)
+    router.post("/user/forgot-password", userController.handleForgotPassword);
 
     //-----------------------------------------------api Feedback------------------
     router.post("/user/send-feedback", userController.handleSendFeedback);
@@ -35,11 +39,12 @@ let initWebRoutes = (app) => {
     router.get("/products/search", productController.searchAllProductByKeyword);
 
     //----------------------------------------------------------------------------------------- api Brand -------------------------------
-    //api lấy ds nhãn hàng
-    // router.get("/brand/get-all", brandController.getAllProductByBrand);
-
     //api lấy ds sản phẩm theo nhãn hàng
     router.get("/product/brand/:id", brandController.getAllProductByBrand);
+
+    //----------------------------------------------------------------------------------------- api Category -------------------------------
+    //api lấy ds sản phẩm theo danh mục sản phẩm
+    router.get("/category/product-of-category", categoryController.getAllProductOfCategory);
 
     //---------------------------------------------------------------------------------------- api Cart -----------------------------
     //api thêm sản phẩm vào giỏ hàng
