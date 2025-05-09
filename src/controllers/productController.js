@@ -198,7 +198,8 @@ const createNewProductVersion = async (req, res) => {
             !req.body.availableCapacity ||
             !req.body.price ||
             !req.body.quantity ||
-            !req.body.status
+            !req.body.status ||
+            !req.body.warranty
         ) {
             return res.status(200).json({
                 errorCode: 1,
@@ -232,7 +233,8 @@ const updateProductVersion = async (req, res) => {
             !req.body.availableCapacity ||
             !req.body.price ||
             !req.body.quantity ||
-            !req.body.status
+            !req.body.status ||
+            !req.body.warranty
         ) {
             return res.status(200).json({
                 errorCode: 1,

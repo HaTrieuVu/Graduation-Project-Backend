@@ -19,6 +19,7 @@ module.exports = {
             fGiaBan: Sequelize.FLOAT,
             iSoLuong: Sequelize.INTEGER,
             bTrangThai: Sequelize.BOOLEAN,
+            iThoiGianBaoHanh: DataTypes.INTEGER,
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE,

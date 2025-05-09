@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
             fGiaBan: DataTypes.FLOAT,
             iSoLuong: DataTypes.INTEGER,
             bTrangThai: DataTypes.BOOLEAN,
+            iThoiGianBaoHanh: DataTypes.INTEGER,
         },
         { sequelize, modelName: "ProductVersion", tableName: "product_versions" }
     );

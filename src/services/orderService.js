@@ -84,8 +84,12 @@ const updateOrderStatusService = async (data) => {
 
         // Xác định nội dung thông báo
         let message = `Đơn hàng #${data.orderId} đã được xác nhận!`;
+
         if (data.orderStatus === "Đang giao hàng") {
-            message = `Đơn hàng #${data.orderId} đang được giao!`;
+            const ngayGiaoHang = new Date();
+            ngayGiaoHang.setDate(ngayGiaoHang.getDate() + 3);
+            const formattedDate = ngayGiaoHang.toLocaleDateString("vi-VN");
+            message = `Đơn hàng #${data.orderId} đang được giao - Thời gian kiến ngày: ${formattedDate}.`;
         } else if (data.orderStatus === "Giao hàng thành công") {
             message = `Đơn hàng #${data.orderId} đã được giao thành công!`;
         } else if (data.orderStatus === "Đã hủy") {
@@ -93,28 +97,49 @@ const updateOrderStatusService = async (data) => {
         }
 
         // Cập nhật trạng thái đơn hàng
-        await order.update({
+        const updatedFields = {
             sTrangThaiDonHang: data.orderStatus || order.sTrangThaiDonHang,
             sTrangThaiThanhToan: data.paymentStatus || order.sTrangThaiThanhToan,
-        });
+        };
+
+        // Nếu đơn hàng chuyển sang "Đang giao hàng", thêm ngày giao hàng (sau 3 ngày)
+        if (data.orderStatus === "Đang giao hàng") {
+            const ngayGiaoHang = new Date();
+            ngayGiaoHang.setDate(ngayGiaoHang.getDate() + 3);
+            updatedFields.dNgayGiaoHang = ngayGiaoHang;
+        }
+
+        await order.update(updatedFields);
 
         // Nếu đơn hàng "Giao hàng thành công", tạo phiếu bảo hành cho từng sản phẩm
         if (data.orderStatus === "Giao hàng thành công" && order.orderDetails.length > 0) {
-            const warrantyData = order.orderDetails.map((item) => {
+            const warrantyData = [];
+
+            for (const item of order.orderDetails) {
+                const productVersion = await db.ProductVersion.findOne({
+                    where: { PK_iPhienBanID: item.FK_iPhienBanID },
+                });
+
+                if (!productVersion || !productVersion.iThoiGianBaoHanh) continue;
+
+                const soThangBaoHanh = parseInt(productVersion.iThoiGianBaoHanh, 10);
                 const ngayLap = new Date();
                 const ngayKetThuc = new Date(ngayLap);
-                ngayKetThuc.setFullYear(ngayLap.getFullYear() + 1); // Bảo hành 1 năm
+                ngayKetThuc.setMonth(ngayKetThuc.getMonth() + soThangBaoHanh);
 
-                return {
+                warrantyData.push({
                     FK_iDonMuaHangID: order.PK_iDonMuaHangID,
                     FK_iPhienBanID: item.FK_iPhienBanID,
                     dNgayLap: ngayLap,
                     dNgayKetThucBaoHanh: ngayKetThuc,
                     sTrangThaiXuLy: "Đang bảo hành",
-                    sMota: "Bảo hành 12 tháng",
-                };
-            });
-            await db.Warranty.bulkCreate(warrantyData);
+                    sMota: `Bảo hành ${soThangBaoHanh} tháng`,
+                });
+            }
+
+            if (warrantyData.length > 0) {
+                await db.Warranty.bulkCreate(warrantyData);
+            }
         }
 
         // Nếu đơn hàng bị hủy, hoàn lại số lượng sản phẩm trong đơn
@@ -190,15 +215,20 @@ const handleOrderProductService = async (data) => {
             deliveryAddress = customer ? customer.sDiaChi : "";
         }
 
+        // Tính ngày giao hàng nếu thanh toán online đã hoàn tất
+        const isPaidOnline = data.paymentMethod === "TTOL" && data.statusPayment === "Đã thanh toán";
+        const ngayGiaoHang = isPaidOnline ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) : null;
+
         // Tạo đơn hàng
         const newOrder = await db.Order.create(
             {
                 FK_iKhachHangID: data.userId,
                 dNgayLapDon: new Date(),
+                dNgayGiaoHang: ngayGiaoHang,
                 fTongTien: data.totalPrice,
                 fPhiShip: data.shipFee || 0,
                 sPhuongThucThanhToan: data.paymentMethod,
-                sTrangThaiDonHang: "Chờ xác nhận",
+                sTrangThaiDonHang: isPaidOnline ? "Đang giao hàng" : "Chờ xác nhận",
                 sTrangThaiThanhToan: data.statusPayment,
                 sCongThanhToan: data.paymentGateway || null,
                 sDiaChiGiaoHang: deliveryAddress,
@@ -225,12 +255,17 @@ const handleOrderProductService = async (data) => {
             );
         }
 
-        // Thêm thông báo về đơn hàng
+        const notificationContent = isPaidOnline
+            ? `Đơn hàng đã được xác nhận và đóng hàng - thời gian giao hàng dự kiến ${ngayGiaoHang.toLocaleDateString(
+                  "vi-VN"
+              )}`
+            : `Đơn hàng #${newOrder.PK_iDonMuaHangID} đã được đặt thành công!`;
+
         await db.Notification.create(
             {
                 FK_iKhachHangID: data.userId,
                 FK_iDonMuaHangID: newOrder.PK_iDonMuaHangID,
-                sNoiDung: `Đơn hàng #${newOrder.PK_iDonMuaHangID} đã được đặt thành công!`,
+                sNoiDung: notificationContent,
                 dThoiGianGui: new Date(),
                 sTrangThaiDoc: false,
             },
@@ -273,9 +308,12 @@ const getAllPurchaseByUserService = async (userId, type) => {
                     whereCondition.sTrangThaiDonHang = "Chờ xác nhận";
                     break;
                 case "2":
-                    whereCondition.sTrangThaiDonHang = "Đang giao hàng";
+                    whereCondition.sTrangThaiDonHang = "Xác nhận";
                     break;
                 case "3":
+                    whereCondition.sTrangThaiDonHang = "Đang giao hàng";
+                    break;
+                case "4":
                     whereCondition.sTrangThaiDonHang = "Giao hàng thành công";
                     break;
                 case "4":

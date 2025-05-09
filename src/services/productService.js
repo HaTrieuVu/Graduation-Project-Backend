@@ -352,6 +352,9 @@ const createNewProductVersionService = async (data) => {
             };
         }
 
+        // Ép kiểu thời gian bảo hành sang số
+        const warrantyMonths = data.warranty ? parseInt(data.warranty, 10) : null;
+
         // Nếu chưa tồn tại thì tạo mới
         await db.ProductVersion.create({
             FK_iSanPhamID: data.productId,
@@ -361,6 +364,7 @@ const createNewProductVersionService = async (data) => {
             fGiaBan: data.price,
             iSoLuong: data.quantity,
             bTrangThai: data.status,
+            iThoiGianBaoHanh: warrantyMonths,
         });
 
         return {
@@ -382,6 +386,10 @@ const updateProductVersionService = async (data) => {
         let productVersion = await db.ProductVersion.findOne({
             where: { PK_iPhienBanID: data.id },
         });
+
+        // Ép kiểu thời gian bảo hành sang số
+        const warrantyMonths = data.warranty ? parseInt(data.warranty, 10) : null;
+
         if (productVersion) {
             await productVersion.update({
                 FK_iSanPhamID: data.productId,
@@ -391,6 +399,7 @@ const updateProductVersionService = async (data) => {
                 fGiaBan: data.price,
                 iSoLuong: data.quantity,
                 bTrangThai: data.status,
+                iThoiGianBaoHanh: warrantyMonths,
             });
             return {
                 errorCode: 0,
